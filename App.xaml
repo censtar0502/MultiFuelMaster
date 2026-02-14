@@ -10,6 +10,7 @@
             <converters:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisConverter"/>
             <converters:BoolToAddEditConverter x:Key="BoolToAddEditConverter"/>
             <converters:ColorRadioConverter x:Key="ColorRadioConverter"/>
+            <converters:HexToColorBrushConverter x:Key="HexToColorBrushConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />

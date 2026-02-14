@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MultiFuelMaster")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+05dcc3111569ada8fb109ff21c43ec81c33dcc20")]
 [assembly: System.Reflection.AssemblyProductAttribute("MultiFuelMaster")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MultiFuelMaster")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

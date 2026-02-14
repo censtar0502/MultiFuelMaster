@@ -150,3 +150,4 @@ E:\MultiFuelMaster\obj\Debug\net8.0-windows\refint\MultiFuelMaster.dll
 E:\MultiFuelMaster\obj\Debug\net8.0-windows\MultiFuelMaster.pdb
 E:\MultiFuelMaster\obj\Debug\net8.0-windows\MultiFuelMaster.genruntimeconfig.cache
 E:\MultiFuelMaster\obj\Debug\net8.0-windows\ref\MultiFuelMaster.dll
+E:\MultiFuelMaster\obj\Debug\net8.0-windows\MultiFuelMaster.sourcelink.json
