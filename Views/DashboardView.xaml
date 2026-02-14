@@ -1,0 +1,147 @@
+<UserControl x:Class="MultiFuelMaster.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Grid.Row="0" 
+                   Text="Панель управления" 
+                   Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                   Margin="0,0,0,20"/>
+        
+        <!-- Summary Cards -->
+        <UniformGrid Grid.Row="1" Rows="2" Columns="2" Margin="0,0,0,20">
+            <!-- Total Stations Card -->
+            <materialDesign:Card Margin="5" UniformCornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <materialDesign:PackIcon Grid.Row="0" 
+                                           Kind="MapMarkerMultiple" 
+                                           Width="48" Height="48" 
+                                           HorizontalAlignment="Right" 
+                                           Margin="10"/>
+                    <StackPanel Grid.Row="1" Margin="16">
+                        <TextBlock Text="Станции" 
+                                 Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                 Opacity="0.68"/>
+                        <TextBlock Text="{Binding TotalStations}" 
+                                 Style="{StaticResource MaterialDesignHeadline3TextBlock}"
+                                 FontWeight="Bold"/>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+            
+            <!-- Total Dispensers Card -->
+            <materialDesign:Card Margin="5" UniformCornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <materialDesign:PackIcon Grid.Row="0" 
+                                           Kind="GasStation" 
+                                           Width="48" Height="48" 
+                                           HorizontalAlignment="Right" 
+                                           Margin="10"/>
+                    <StackPanel Grid.Row="1" Margin="16">
+                        <TextBlock Text="Раздатчики" 
+                                 Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                 Opacity="0.68"/>
+                        <TextBlock Text="{Binding TotalDispensers}" 
+                                 Style="{StaticResource MaterialDesignHeadline3TextBlock}"
+                                 FontWeight="Bold"/>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+            
+            <!-- Today's Revenue Card -->
+            <materialDesign:Card Margin="5" UniformCornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <materialDesign:PackIcon Grid.Row="0" 
+                                           Kind="CurrencyRub" 
+                                           Width="48" Height="48" 
+                                           HorizontalAlignment="Right" 
+                                           Margin="10"/>
+                    <StackPanel Grid.Row="1" Margin="16">
+                        <TextBlock Text="Выручка сегодня" 
+                                 Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                 Opacity="0.68"/>
+                        <TextBlock Text="{Binding TodayRevenue, StringFormat='{}{0:N2} руб.'}" 
+                                 Style="{StaticResource MaterialDesignHeadline3TextBlock}"
+                                 FontWeight="Bold"/>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+            
+            <!-- Today's Transactions Card -->
+            <materialDesign:Card Margin="5" UniformCornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <materialDesign:PackIcon Grid.Row="0" 
+                                           Kind="History" 
+                                           Width="48" Height="48" 
+                                           HorizontalAlignment="Right" 
+                                           Margin="10"/>
+                    <StackPanel Grid.Row="1" Margin="16">
+                        <TextBlock Text="Транзакции сегодня" 
+                                 Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                 Opacity="0.68"/>
+                        <TextBlock Text="{Binding TodayTransactions}" 
+                                 Style="{StaticResource MaterialDesignHeadline3TextBlock}"
+                                 FontWeight="Bold"/>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+        </UniformGrid>
+        
+        <!-- Recent Activity -->
+        <materialDesign:Card Grid.Row="1" Margin="0,20,0,0">
+            <Grid Margin="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" 
+                         Text="Станции" 
+                         Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                         Margin="0,0,0,16"/>
+                
+                <DataGrid Grid.Row="1"
+                         ItemsSource="{Binding Stations}"
+                         AutoGenerateColumns="False"
+                         IsReadOnly="True"
+                         SelectionMode="Single"
+                         GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                        <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*"/>
+                        <DataGridTextColumn Header="Телефон" Binding="{Binding PhoneNumber}" Width="120"/>
+                        <DataGridTextColumn Header="Активна" Binding="{Binding IsActive}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

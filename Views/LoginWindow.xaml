@@ -1,0 +1,26 @@
+<Window x:Class="MultiFuelMaster.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Вход в систему"
+        Height="400" Width="400"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    
+    <StackPanel Margin="30" VerticalAlignment="Center">
+        <TextBlock Text="MultiFuelMaster" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+        <TextBlock Text="Вход в систему" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+        
+        <Label Content="Логин *"/>
+        <TextBox x:Name="LoginTextBox" Height="30" Margin="0,0,0,10" KeyDown="LoginTextBox_KeyDown"/>
+        
+        <Label Content="Пароль *"/>
+        <PasswordBox x:Name="PasswordBox" Height="30" Margin="0,0,0,15" KeyDown="PasswordBox_KeyDown"/>
+        
+        <TextBlock x:Name="ErrorText" Foreground="Red" Margin="0,0,0,10" TextWrapping="Wrap" Visibility="Collapsed"/>
+        
+        <Button x:Name="LoginButton" Content="Войти" Click="LoginButton_Click" 
+                Height="35" FontSize="14" Background="Purple" Foreground="White"/>
+        
+        <ProgressBar x:Name="LoadingBar" IsIndeterminate="True" Visibility="Collapsed" Height="20" Margin="0,15,0,0"/>
+    </StackPanel>
+</Window>

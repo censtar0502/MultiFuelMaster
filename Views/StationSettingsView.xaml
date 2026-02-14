@@ -1,0 +1,98 @@
+<UserControl x:Class="MultiFuelMaster.Views.StationSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             d:DesignHeight="688.757" d:DesignWidth="800">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20" MaxWidth="600">
+                <!-- Header -->
+                <TextBlock Text="Общие параметры" 
+                          FontSize="24" 
+                          FontWeight="Bold" 
+                          Margin="0,0,0,20"/>
+                
+                <!-- Station Name -->
+                <TextBlock Text="Название АЗС" Margin="0,0,0,5" FontWeight="Medium"/>
+                <TextBox Text="{Binding StationName, UpdateSourceTrigger=PropertyChanged}"
+                        materialDesign:HintAssist.Hint="Введите название станции"
+                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                        Margin="0,0,0,15"/>
+                
+                <!-- Station Address -->
+                <TextBlock Text="Адрес АЗС" Margin="0,0,0,5" FontWeight="Medium"/>
+                <TextBox Text="{Binding StationAddress, UpdateSourceTrigger=PropertyChanged}"
+                        materialDesign:HintAssist.Hint="Введите адрес станции"
+                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                        Margin="0,0,0,15"/>
+                
+                <!-- Company Name -->
+                <TextBlock Text="Название компании" Margin="0,0,0,5" FontWeight="Medium"/>
+                <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
+                        materialDesign:HintAssist.Hint="Введите название компании"
+                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                        Margin="0,0,0,15"/>
+                
+                <!-- Language -->
+                <TextBlock Text="Язык" Margin="0,0,0,5" FontWeight="Medium"/>
+                <ComboBox SelectedValue="{Binding SelectedLanguage}"
+                         SelectedValuePath="Tag"
+                         Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                         Margin="0,0,0,15">
+                    <ComboBoxItem Content="Русский" Tag="ru"/>
+                    <ComboBoxItem Content="Узбекский" Tag="uz"/>
+                    <ComboBoxItem Content="Английский" Tag="en"/>
+                </ComboBox>
+                
+                <!-- Currency -->
+                <TextBlock Text="Валюта" Margin="0,0,0,5" FontWeight="Medium"/>
+                <ComboBox SelectedValue="{Binding SelectedCurrency}"
+                         SelectedValuePath="Tag"
+                         Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                         Margin="0,0,0,15">
+                    <ComboBoxItem Content="Узбекский сум (UZS)" Tag="UZS"/>
+                    <ComboBoxItem Content="Доллар США (USD)" Tag="USD"/>
+                    <ComboBoxItem Content="Евро (EUR)" Tag="EUR"/>
+                    <ComboBoxItem Content="Российский рубль (RUB)" Tag="RUB"/>
+                </ComboBox>
+                
+                <!-- Archive Path -->
+                <TextBlock Text="Путь архивирования MultiFuelMaster" Margin="0,0,0,5" FontWeight="Medium"/>
+                <TextBox Text="{Binding ArchivePath, UpdateSourceTrigger=PropertyChanged}"
+                        materialDesign:HintAssist.Hint="Например: D:\Archive"
+                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                        Margin="0,0,0,20"/>
+                
+                <!-- Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button Content="Сохранить"
+                           Command="{Binding SaveCommand}"
+                           Style="{StaticResource MaterialDesignRaisedButton}"
+                           Background="#673AB7"
+                           Foreground="White"
+                           Padding="30,10"
+                           Margin="0,0,15,0" Height="38"/>
+                    
+                    <Button Content="Отмена"
+                           Command="{Binding CancelCommand}"
+                           Style="{StaticResource MaterialDesignOutlinedButton}"
+                           Padding="30,10" Height="38"/>
+                </StackPanel>
+                
+                <!-- Status Message -->
+                <TextBlock Text="{Binding StatusMessage}"
+                          Margin="0,15,0,0"
+                          FontStyle="Italic"
+                          Foreground="#673AB7"/>
+                
+                <!-- Loading Indicator -->
+                <ProgressBar IsIndeterminate="True"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Margin="0,15,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
