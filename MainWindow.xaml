@@ -173,6 +173,18 @@
                             <TextBlock Text="Параметры продаж"/>
                         </StackPanel>
                     </Button>
+                    
+                    <Separator Margin="15,10"/>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                            HorizontalContentAlignment="Left"
+                            Command="{Binding ExitCommand}"
+                            Padding="15,12" Height="42">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ExitToApp" Margin="0,0,10,0" Foreground="#F44336"/>
+                            <TextBlock Text="Выход" Foreground="#F44336"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </ScrollViewer>
         </Border>

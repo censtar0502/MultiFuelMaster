@@ -20,6 +20,10 @@ namespace MultiFuelMaster
             {
                 base.OnStartup(e);
 
+                // Инициализация логирования
+                var logDirectory = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+                LoggingService.Initialize(logDirectory);
+
                 var services = new ServiceCollection();
                 ConfigureServices(services);
                 _serviceProvider = services.BuildServiceProvider();
@@ -69,10 +73,34 @@ namespace MultiFuelMaster
                 var fuelTypeService = _serviceProvider.GetRequiredService<FuelTypeService>();
                 var tankService = _serviceProvider.GetRequiredService<TankService>();
                 
-                var mainViewModel = new MainViewModel(databaseService, stationSettingsService, fuelTypeService, tankService, _currentUser);
+                // Сохранить время входа в базу
+                if (_currentUser != null)
+                {
+                    _currentUser.LoginTime = DateTime.Now;
+                    var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
+                    var userToUpdate = dbContext.Users.Find(_currentUser.Id);
+                    if (userToUpdate != null)
+                    {
+                        userToUpdate.LoginTime = _currentUser.LoginTime;
+                        dbContext.SaveChanges();
+                    }
+                }
+                
+                var mainViewModel = new MainViewModel(
+                    databaseService, 
+                    stationSettingsService, 
+                    fuelTypeService, 
+                    tankService, 
+                    _currentUser,
+                    () => {
+                        // Сохранить время выхода перед закрытием
+                        SaveLogoutTime();
+                        this.Shutdown();
+                    });
                 var mainWindow = new MainWindow { DataContext = mainViewModel };
                 
                 mainWindow.Closed += (s, e) => {
+                    SaveLogoutTime();
                     this.Shutdown();
                 };
                 
@@ -82,6 +110,27 @@ namespace MultiFuelMaster
             {
                 MessageBox.Show($"Ошибка при открытии главного окна: {ex.Message}\n\nStack: {ex.StackTrace}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 this.Shutdown();
+            }
+        }
+        
+        private void SaveLogoutTime()
+        {
+            try
+            {
+                if (_currentUser != null && _serviceProvider != null)
+                {
+                    var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
+                    var userToUpdate = dbContext.Users.Find(_currentUser.Id);
+                    if (userToUpdate != null)
+                    {
+                        userToUpdate.LogoutTime = DateTime.Now;
+                        dbContext.SaveChanges();
+                    }
+                }
+            }
+            catch
+            {
+                // Игнорировать ошибки при сохранении времени выхода
             }
         }
 

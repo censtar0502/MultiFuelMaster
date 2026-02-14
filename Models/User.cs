@@ -32,6 +32,16 @@ namespace MultiFuelMaster.Models
         public DateTime LastLogin { get; set; }
         
         /// <summary>
+        /// Время входа в систему
+        /// </summary>
+        public DateTime? LoginTime { get; set; }
+        
+        /// <summary>
+        /// Время выхода из системы
+        /// </summary>
+        public DateTime? LogoutTime { get; set; }
+        
+        /// <summary>
         /// Hash password using SHA256 with salt
         /// </summary>
         public static string HashPassword(string password)

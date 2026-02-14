@@ -16,6 +16,8 @@ namespace MultiFuelMaster.ViewModels
         private readonly StationSettingsService _stationSettingsService;
         private readonly FuelTypeService _fuelTypeService;
         private readonly TankService _tankService;
+        private User? _currentUser;
+        private readonly Action _onExit;
 
         [ObservableProperty]
         private object _currentView = null!;
@@ -32,18 +34,24 @@ namespace MultiFuelMaster.ViewModels
         [ObservableProperty]
         private bool _isAdminMenuVisible = false;
 
-        public MainViewModel(DatabaseService databaseService, StationSettingsService stationSettingsService, FuelTypeService fuelTypeService, TankService tankService, User? currentUser = null)
+        public MainViewModel(DatabaseService databaseService, StationSettingsService stationSettingsService, FuelTypeService fuelTypeService, TankService tankService, User? currentUser = null, Action? onExit = null)
         {
             _databaseService = databaseService;
             _stationSettingsService = stationSettingsService;
             _fuelTypeService = fuelTypeService;
             _tankService = tankService;
+            _onExit = onExit ?? (() => System.Windows.Application.Current.Shutdown());
             
             // Set current user info
             if (currentUser != null)
             {
+                _currentUser = currentUser;
                 CurrentUserLogin = currentUser.Login;
                 IsAdminMenuVisible = currentUser.Role == UserRole.SuperAdmin;
+                
+                // Записать время входа
+                currentUser.LoginTime = DateTime.Now;
+                LoggingService.Instance?.LogLogin(currentUser.Login);
             }
             
             // Initialize with empty dashboard view
@@ -119,6 +127,19 @@ namespace MultiFuelMaster.ViewModels
             var viewModel = new SettingsViewModel(NavigateToEmptyDashboard);
             CurrentView = new SettingsView { DataContext = viewModel };
             WindowTitle = "MultiFuelMaster - Настройки";
+        }
+        
+        [RelayCommand]
+        private void Exit()
+        {
+            // Записать выход в лог
+            if (_currentUser != null)
+            {
+                _currentUser.LogoutTime = DateTime.Now;
+                LoggingService.Instance?.LogLogout(_currentUser.Login);
+            }
+            
+            _onExit?.Invoke();
         }
     }
 }
