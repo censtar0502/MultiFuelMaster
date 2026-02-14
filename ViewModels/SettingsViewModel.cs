@@ -1,37 +1,22 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace MultiFuelMaster.ViewModels
 {
-    /// <summary>
-    /// Settings view model (read-only settings display)
-    /// </summary>
     public partial class SettingsViewModel : BaseViewModel
     {
-        [ObservableProperty]
-        private string _applicationVersion = "1.0.0";
+        private readonly Action _onComplete;
 
-        [ObservableProperty]
-        private string _databasePath = "fuelmaster.db";
-
-        [ObservableProperty]
-        private int _dataRetentionDays = 365;
-
-        [ObservableProperty]
-        private bool _autoRefreshEnabled = true;
-
-        [ObservableProperty]
-        private int _refreshIntervalMinutes = 5;
-
-        public SettingsViewModel()
+        public SettingsViewModel(Action onComplete)
         {
-            // Load settings from configuration
-            LoadSettings();
+            _onComplete = onComplete;
         }
 
-        private void LoadSettings()
+        [RelayCommand]
+        private void Close()
         {
-            // In a real application, load from app.config or registry
-            // For now, using default values
+            _onComplete?.Invoke();
         }
     }
 }
