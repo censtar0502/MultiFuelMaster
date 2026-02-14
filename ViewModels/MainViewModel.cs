@@ -16,6 +16,7 @@ namespace MultiFuelMaster.ViewModels
         private readonly StationSettingsService _stationSettingsService;
         private readonly FuelTypeService _fuelTypeService;
         private readonly TankService _tankService;
+        private readonly UserService _userService;
         private User? _currentUser;
         private readonly Action _onExit;
 
@@ -34,12 +35,13 @@ namespace MultiFuelMaster.ViewModels
         [ObservableProperty]
         private bool _isAdminMenuVisible = false;
 
-        public MainViewModel(DatabaseService databaseService, StationSettingsService stationSettingsService, FuelTypeService fuelTypeService, TankService tankService, User? currentUser = null, Action? onExit = null)
+        public MainViewModel(DatabaseService databaseService, StationSettingsService stationSettingsService, FuelTypeService fuelTypeService, TankService tankService, UserService userService, User? currentUser = null, Action? onExit = null)
         {
             _databaseService = databaseService;
             _stationSettingsService = stationSettingsService;
             _fuelTypeService = fuelTypeService;
             _tankService = tankService;
+            _userService = userService;
             _onExit = onExit ?? (() => System.Windows.Application.Current.Shutdown());
             
             // Set current user info
@@ -47,7 +49,8 @@ namespace MultiFuelMaster.ViewModels
             {
                 _currentUser = currentUser;
                 CurrentUserLogin = currentUser.Login;
-                IsAdminMenuVisible = currentUser.Role == UserRole.SuperAdmin;
+                // Проверяем роль по ID (СуперАдмин = Id 1)
+                IsAdminMenuVisible = currentUser.RoleId == 1;
                 
                 // Записать время входа
                 currentUser.LoginTime = DateTime.Now;
@@ -103,6 +106,14 @@ namespace MultiFuelMaster.ViewModels
             var viewModel = new TanksViewModel(_tankService, NavigateToEmptyDashboard);
             CurrentView = new TanksView { DataContext = viewModel };
             WindowTitle = "MultiFuelMaster - Ёмкости";
+        }
+
+        [RelayCommand]
+        private void NavigateToUsers()
+        {
+            var viewModel = new UsersViewModel(_userService, NavigateToEmptyDashboard);
+            CurrentView = new UsersView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster - Пользователи";
         }
 
         [RelayCommand]

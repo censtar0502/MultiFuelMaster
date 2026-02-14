@@ -120,6 +120,7 @@
                     
                     <Button Style="{StaticResource MaterialDesignFlatButton}"
                             HorizontalContentAlignment="Left"
+                            Command="{Binding NavigateToUsersCommand}"
                             Padding="15,12" Height="42">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="AccountMultiple" Margin="0,0,10,0"/>

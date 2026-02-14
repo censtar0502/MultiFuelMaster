@@ -13,6 +13,7 @@ namespace MultiFuelMaster.Data
         public DbSet<Dispenser> Dispensers { get; set; } = null!;
         public DbSet<Transaction> Transactions { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<UserRole> UserRoles { get; set; } = null!;
         public DbSet<StationSettings> StationSettings { get; set; } = null!;
         public DbSet<Tank> Tanks { get; set; } = null!;
 
@@ -44,6 +45,27 @@ namespace MultiFuelMaster.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.ShortName).IsRequired().HasMaxLength(50);
                 entity.HasIndex(e => e.ShortName);
+            });
+
+            // Configure UserRole entity
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+                entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            // Configure User entity
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Login).IsRequired().HasMaxLength(50);
+                entity.HasIndex(e => e.Login).IsUnique();
+                
+                entity.HasOne(u => u.Role)
+                      .WithMany()
+                      .HasForeignKey(u => u.RoleId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Configure Tank entity
@@ -137,6 +159,15 @@ namespace MultiFuelMaster.Data
                 new Dispenser { Id = 3, StationId = 1, FuelTypeId = 3, DispenserNumber = "3", CurrentVolume = 800, TotalVolume = 0, CurrentPrice = 52.00m, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
                 new Dispenser { Id = 4, StationId = 2, FuelTypeId = 1, DispenserNumber = "1", CurrentVolume = 1200, TotalVolume = 0, CurrentPrice = 45.50m, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
                 new Dispenser { Id = 5, StationId = 2, FuelTypeId = 4, DispenserNumber = "2", CurrentVolume = 500, TotalVolume = 0, CurrentPrice = 22.30m, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now }
+            );
+
+            // Seed user roles
+            modelBuilder.Entity<UserRole>().HasData(
+                new UserRole { Id = 1, Name = "СуперАдмин", Description = "Полные права на систему", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
+                new UserRole { Id = 2, Name = "Администратор", Description = "Управление станцией и пользователями", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
+                new UserRole { Id = 3, Name = "Старший оператор", Description = "Управление операторами и отчеты", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
+                new UserRole { Id = 4, Name = "Оператор", Description = "Основные операции с топливом", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
+                new UserRole { Id = 5, Name = "Конфигуратор", Description = "Настройка системы", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now }
             );
         }
     }

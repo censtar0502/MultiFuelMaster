@@ -1,0 +1,138 @@
+<UserControl x:Class="MultiFuelMaster.Views.UsersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             Background="{DynamicResource MaterialDesignPaper}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Orientation="Horizontal" Margin="16,16,16,8">
+            <Button Style="{StaticResource MaterialDesignIconButton}" Command="{Binding GoBackCommand}" ToolTip="Назад">
+                <materialDesign:PackIcon Kind="ArrowLeft"/>
+            </Button>
+            <TextBlock Text="Пользователи" Style="{StaticResource MaterialDesignHeadline5TextBlock}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+        </StackPanel>
+
+        <TabControl Grid.Row="1" Margin="16,0,16,16" Style="{StaticResource MaterialDesignFilledTabControl}">
+            <!-- Users Tab -->
+            <TabItem Header="Пользователи">
+                <Grid>
+                    <Grid Visibility="{Binding IsEditingUser, Converter={StaticResource InverseBoolToVisConverter}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Button Content="Добавить пользователя" Command="{Binding AddNewUserCommand}" Style="{StaticResource MaterialDesignRaisedButton}" HorizontalAlignment="Left" Margin="0,16,0,16" Padding="16,8">
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Добавить пользователя" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Логин" Binding="{Binding Login}" Width="150"/>
+                                <DataGridTextColumn Header="Полное имя" Binding="{Binding FullName}" Width="200"/>
+                                <DataGridTextColumn Header="Роль" Binding="{Binding Role.Name}" Width="150"/>
+                                <DataGridCheckBoxColumn Header="Активен" Binding="{Binding IsActive}" Width="80"/>
+                                <DataGridTemplateColumn Header="Действия" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Command="{Binding DataContext.EditUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Style="{StaticResource MaterialDesignIconButton}">
+                                                    <materialDesign:PackIcon Kind="Pencil" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                                </Button>
+                                                <Button Command="{Binding DataContext.DeleteUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Style="{StaticResource MaterialDesignIconButton}" Margin="4,0,0,0">
+                                                    <materialDesign:PackIcon Kind="Delete" Foreground="#F44336"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+
+                    <!-- User Edit Form -->
+                    <Grid Visibility="{Binding IsEditingUser, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <materialDesign:Card Margin="0,16,0,0" Padding="24">
+                            <StackPanel MaxWidth="500">
+                                <TextBlock Text="{Binding IsAddingNewUser, Converter={StaticResource BoolToAddEditConverter}}" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,24"/>
+
+                                <TextBox Text="{Binding EditingUser.Login, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Логин *" Style="{StaticResource MaterialDesignOutlinedTextBox}" Margin="0,0,0,16"/>
+                                <TextBox Text="{Binding EditingUser.FullName, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Полное имя" Style="{StaticResource MaterialDesignOutlinedTextBox}" Margin="0,0,0,16"/>
+                                <PasswordBox x:Name="PasswordBox" materialDesign:HintAssist.Hint="Пароль" Style="{StaticResource MaterialDesignOutlinedPasswordBox}" Margin="0,0,0,16"/>
+                                <ComboBox ItemsSource="{Binding Roles}" SelectedValue="{Binding EditingUser.RoleId}" SelectedValuePath="Id" DisplayMemberPath="Name" materialDesign:HintAssist.Hint="Роль *" Style="{StaticResource MaterialDesignOutlinedComboBox}" Margin="0,0,0,16"/>
+                                <CheckBox IsChecked="{Binding EditingUser.IsActive}" Content="Активен" Style="{StaticResource MaterialDesignCheckBox}" Margin="0,0,0,24"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Отмена" Command="{Binding CancelUserEditCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,16,0" Padding="24,8"/>
+                                    <Button Content="Сохранить" Command="{Binding SaveUserCommand}" Style="{StaticResource MaterialDesignRaisedButton}" Padding="24,8"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </ScrollViewer>
+                </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- Roles Tab -->
+            <TabItem Header="Роли пользователей">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Content="Добавить роль" Command="{Binding AddNewRoleCommand}" Style="{StaticResource MaterialDesignRaisedButton}" HorizontalAlignment="Left" Margin="0,16,0,16" Padding="16,8">
+                        <Button.ContentTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Добавить роль" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </Button.ContentTemplate>
+                    </Button>
+
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Roles}" Margin="0,0,0,16">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <materialDesign:Card Margin="0,0,16,16" Padding="16" Width="200">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding Name}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="1" Text="{Binding Description}" TextWrapping="Wrap" Opacity="0.7" Margin="0,8,0,0"/>
+                                        <Button Grid.Row="2" Style="{StaticResource MaterialDesignIconButton}" HorizontalAlignment="Right" Margin="0,8,0,0" Command="{Binding DataContext.DeleteRoleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" ToolTip="Удалить">
+                                            <materialDesign:PackIcon Kind="Delete" Foreground="#F44336"/>
+                                        </Button>
+                                    </Grid>
+                                </materialDesign:Card>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <ProgressBar IsIndeterminate="True" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Top"/>
+    </Grid>
+</UserControl>

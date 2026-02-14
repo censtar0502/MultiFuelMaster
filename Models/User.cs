@@ -24,7 +24,15 @@ namespace MultiFuelMaster.Models
         [MaxLength(100)]
         public string? FullName { get; set; }
         
-        public UserRole Role { get; set; } = UserRole.User;
+        /// <summary>
+        /// ID роли пользователя
+        /// </summary>
+        public int RoleId { get; set; }
+        
+        /// <summary>
+        /// Навигационное свойство роли
+        /// </summary>
+        public UserRole? Role { get; set; }
         
         public bool IsActive { get; set; } = true;
         
@@ -60,12 +68,5 @@ namespace MultiFuelMaster.Models
         {
             return PasswordHash == HashPassword(password);
         }
-    }
-    
-    public enum UserRole
-    {
-        User,
-        Admin,
-        SuperAdmin
     }
 }

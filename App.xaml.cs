@@ -72,6 +72,7 @@ namespace MultiFuelMaster
                 var stationSettingsService = _serviceProvider.GetRequiredService<StationSettingsService>();
                 var fuelTypeService = _serviceProvider.GetRequiredService<FuelTypeService>();
                 var tankService = _serviceProvider.GetRequiredService<TankService>();
+                var userService = _serviceProvider.GetRequiredService<UserService>();
                 
                 // Сохранить время входа в базу
                 if (_currentUser != null)
@@ -90,7 +91,8 @@ namespace MultiFuelMaster
                     databaseService, 
                     stationSettingsService, 
                     fuelTypeService, 
-                    tankService, 
+                    tankService,
+                    userService,
                     _currentUser,
                     () => {
                         // Сохранить время выхода перед закрытием
@@ -143,6 +145,7 @@ namespace MultiFuelMaster
             services.AddSingleton<StationSettingsService>();
             services.AddSingleton<FuelTypeService>();
             services.AddSingleton<TankService>();
+            services.AddSingleton<UserService>();
         }
 
         protected override void OnExit(ExitEventArgs e)
