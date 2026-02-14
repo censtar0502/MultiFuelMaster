@@ -74,9 +74,10 @@ namespace MultiFuelMaster
                     var databaseService = _serviceProvider.GetRequiredService<DatabaseService>();
                     var stationSettingsService = _serviceProvider.GetRequiredService<StationSettingsService>();
                     var fuelTypeService = _serviceProvider.GetRequiredService<FuelTypeService>();
+                    var tankService = _serviceProvider.GetRequiredService<TankService>();
                     
                     // Create main view model with user
-                    var mainViewModel = new MainViewModel(databaseService, stationSettingsService, fuelTypeService, _currentUser);
+                    var mainViewModel = new MainViewModel(databaseService, stationSettingsService, fuelTypeService, tankService, _currentUser);
                     
                     var mainWindow = new MainWindow { DataContext = mainViewModel };
                     
@@ -112,6 +113,7 @@ namespace MultiFuelMaster
             services.AddSingleton<EncryptionService>();
             services.AddSingleton<StationSettingsService>();
             services.AddSingleton<FuelTypeService>();
+            services.AddSingleton<TankService>();
         }
 
         protected override void OnExit(ExitEventArgs e)

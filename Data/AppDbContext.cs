@@ -14,6 +14,7 @@ namespace MultiFuelMaster.Data
         public DbSet<Transaction> Transactions { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<StationSettings> StationSettings { get; set; } = null!;
+        public DbSet<Tank> Tanks { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -43,6 +44,19 @@ namespace MultiFuelMaster.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.ShortName).IsRequired().HasMaxLength(50);
                 entity.HasIndex(e => e.ShortName);
+            });
+
+            // Configure Tank entity
+            modelBuilder.Entity<Tank>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Number).IsRequired();
+                entity.HasIndex(e => e.Number).IsUnique();
+                
+                entity.HasOne(t => t.FuelType)
+                      .WithMany()
+                      .HasForeignKey(t => t.FuelTypeId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configure Dispenser entity

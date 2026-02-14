@@ -139,8 +139,8 @@
                     
                     <Button Style="{StaticResource MaterialDesignFlatButton}"
                             HorizontalContentAlignment="Left"
-                            Padding="15,12" Height="41
-                            ">
+                            Command="{Binding NavigateToTanksCommand}"
+                            Padding="15,12" Height="42">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Water" Margin="0,0,10,0"/>
                             <TextBlock Text="Ёмкости"/>
@@ -151,7 +151,7 @@
                             HorizontalContentAlignment="Left"
                             Padding="15,12" Height="42">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="CableData" Margin="0,0,10,0"/>
+                            <materialDesign:PackIcon Kind="Pipe" Margin="0,0,10,0"/>
                             <TextBlock Text="Каналы ТРК"/>
                         </StackPanel>
                     </Button>
@@ -160,7 +160,7 @@
                             HorizontalContentAlignment="Left"
                             Padding="15,12" Height="42">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="PointOfSale" Margin="0,0,10,0"/>
+                            <materialDesign:PackIcon Kind="Counter" Margin="0,0,10,0"/>
                             <TextBlock Text="Посты"/>
                         </StackPanel>
                     </Button>
@@ -169,7 +169,7 @@
                             HorizontalContentAlignment="Left"
                             Padding="15,12" Height="42">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="CurrencyUsd" Margin="0,0,10,0"/>
+                            <materialDesign:PackIcon Kind="Cash" Margin="0,0,10,0"/>
                             <TextBlock Text="Параметры продаж"/>
                         </StackPanel>
                     </Button>
@@ -179,33 +179,14 @@
         
         <!-- Main Content Area -->
         <ContentControl Grid.Row="1" Grid.Column="1" 
-                       Content="{Binding CurrentView}"
-                       Margin="16"/>
+                        Content="{Binding CurrentView}" 
+                        Margin="16"/>
         
         <!-- Status Bar -->
-        <materialDesign:ColorZone Grid.Row="2" Grid.ColumnSpan="2" 
-                                  Mode="Light"
-                                  Padding="16,8"
-                                  materialDesign:ElevationAssist.Elevation="Dp2">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="Database" 
-                                           VerticalAlignment="Center" 
-                                           Margin="0,0,8,0"/>
-                    <TextBlock Text="База данных: подключена" 
-                             VerticalAlignment="Center"
-                             Style="{StaticResource MaterialDesignBody2TextBlock}"/>
-                </StackPanel>
-                
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="Clock" 
-                                           VerticalAlignment="Center" 
-                                           Margin="0,0,8,0"/>
-                    <TextBlock Name="ClockTextBlock"
-                             VerticalAlignment="Center"
-                             Style="{StaticResource MaterialDesignBody2TextBlock}"/>
-                </StackPanel>
-            </DockPanel>
-        </materialDesign:ColorZone>
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2">
+            <StatusBarItem>
+                <TextBlock Text="MultiFuelMaster v1.0 | Состояние: Подключено"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

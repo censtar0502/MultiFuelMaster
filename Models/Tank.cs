@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MultiFuelMaster.Models
 {
     /// <summary>
-    /// Represents a fuel tank/storage tank
+    /// Represents fuel tank/reservoir for storing fuel
     /// </summary>
     public class Tank
     {
@@ -12,63 +11,69 @@ namespace MultiFuelMaster.Models
         public int Id { get; set; }
         
         /// <summary>
-        /// Tank number
+        /// Tank number/identifier
         /// </summary>
         public int Number { get; set; }
         
         /// <summary>
-        /// Foreign key to FuelType
+        /// Reference to fuel type
         /// </summary>
-        public int? FuelTypeId { get; set; }
-        
-        /// <summary>
-        /// Navigation property to FuelType
-        /// </summary>
-        [ForeignKey("FuelTypeId")]
+        public int FuelTypeId { get; set; }
         public FuelType? FuelType { get; set; }
         
         /// <summary>
-        /// Minimum fuel level in centimeters
-        /// </summary>
-        public double MinLevel { get; set; }
-        
-        /// <summary>
-        /// Maximum fuel level in centimeters
-        /// </summary>
-        public double MaxLevel { get; set; }
-        
-        /// <summary>
-        /// Minimum fuel volume in liters
-        /// </summary>
-        public double MinVolume { get; set; }
-        
-        /// <summary>
-        /// Maximum fuel volume in liters
+        /// Maximum volume in liters
         /// </summary>
         public double MaxVolume { get; set; }
         
         /// <summary>
-        /// Critical fuel level threshold
+        /// Minimum volume in liters
         /// </summary>
-        public double? CriticalLevel { get; set; }
+        public double MinVolume { get; set; }
         
         /// <summary>
-        /// Reaction to critical level: "None", "Warning", "Block"
+        /// Critical remaining level (percentage or volume)
         /// </summary>
-        [MaxLength(50)]
-        public string CriticalReaction { get; set; } = "None";
+        public double CriticalLevel { get; set; }
         
         /// <summary>
-        /// Whether the tank is locked
+        /// Critical level control type
         /// </summary>
-        public bool IsLocked { get; set; }
+        public CriticalLevelControl CriticalControl { get; set; } = CriticalLevelControl.None;
         
         /// <summary>
-        /// Whether the tank is active
+        /// Whether tank is blocked during fuel arrival
         /// </summary>
+        public bool IsBlockedDuringArrival { get; set; }
+        
+        /// <summary>
+        /// Current fuel level in liters
+        /// </summary>
+        public double CurrentLevel { get; set; }
+        
+        /// <summary>
+        /// Tank status
+        /// </summary>
+        public TankStatus Status { get; set; } = TankStatus.Active;
+        
         public bool IsActive { get; set; } = true;
-        
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime LastUpdated { get; set; } = DateTime.Now;
+    }
+
+    public enum CriticalLevelControl
+    {
+        None = 0,
+        BySalesData = 1,
+        ByManualSetting = 2,
+        BySensor = 3
+    }
+
+    public enum TankStatus
+    {
+        Active = 0,
+        Inactive = 1,
+        Maintenance = 2,
+        Blocked = 3
     }
 }

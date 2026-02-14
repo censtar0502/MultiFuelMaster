@@ -15,6 +15,7 @@ namespace MultiFuelMaster.ViewModels
         private readonly DatabaseService _databaseService;
         private readonly StationSettingsService _stationSettingsService;
         private readonly FuelTypeService _fuelTypeService;
+        private readonly TankService _tankService;
 
         [ObservableProperty]
         private object _currentView = null!;
@@ -31,11 +32,12 @@ namespace MultiFuelMaster.ViewModels
         [ObservableProperty]
         private bool _isAdminMenuVisible = false;
 
-        public MainViewModel(DatabaseService databaseService, StationSettingsService stationSettingsService, FuelTypeService fuelTypeService, User? currentUser = null)
+        public MainViewModel(DatabaseService databaseService, StationSettingsService stationSettingsService, FuelTypeService fuelTypeService, TankService tankService, User? currentUser = null)
         {
             _databaseService = databaseService;
             _stationSettingsService = stationSettingsService;
             _fuelTypeService = fuelTypeService;
+            _tankService = tankService;
             
             // Set current user info
             if (currentUser != null)
@@ -88,6 +90,14 @@ namespace MultiFuelMaster.ViewModels
         }
 
         [RelayCommand]
+        private void NavigateToTanks()
+        {
+            var viewModel = new TanksViewModel(_tankService, NavigateToEmptyDashboard);
+            CurrentView = new TanksView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster - Ёмкости";
+        }
+
+        [RelayCommand]
         private void NavigateToTransactions()
         {
             var viewModel = new TransactionsViewModel(_databaseService);
@@ -106,7 +116,8 @@ namespace MultiFuelMaster.ViewModels
         [RelayCommand]
         private void NavigateToSettings()
         {
-            CurrentView = new SettingsView();
+            var viewModel = new SettingsViewModel(NavigateToEmptyDashboard);
+            CurrentView = new SettingsView { DataContext = viewModel };
             WindowTitle = "MultiFuelMaster - Настройки";
         }
     }
