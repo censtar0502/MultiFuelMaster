@@ -15,8 +15,10 @@ obj/
 *.sln.docstates
 *.rsuser
 
-# Rider
+# Rider & ReSharper
 .idea/
+_ReSharper*/
+*.[Rr]e[Ss]harper
 
 # User-specific files
 *.suo
@@ -24,7 +26,7 @@ obj/
 *.userosscache
 *.sln.docstates
 
-# Build results
+# Build results and Packages
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -39,6 +41,10 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+packages/
+publish/
+out/
+TestResults/
 
 # Visual Studio Code
 .vscode/
@@ -53,8 +59,9 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# Entity Framework
+# Entity Framework & Databases
 *.db
+*.sqlite
 
 # Logs
 *.log
@@ -64,3 +71,5 @@ logs/
 *.tmp
 *.temp
 ~*
+*.bak
+*.orig
