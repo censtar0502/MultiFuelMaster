@@ -51,7 +51,15 @@
                     <DataGridTextColumn Header="Полное название" Binding="{Binding FullName}" Width="*"/>
                     <DataGridTextColumn Header="Название на чеке" Binding="{Binding ReceiptName}" Width="150"/>
                     <DataGridTextColumn Header="Единица" Binding="{Binding Unit}" Width="80"/>
-                    <DataGridTextColumn Header="Цвет" Binding="{Binding Color}" Width="80"/>
+                    <DataGridTemplateColumn Header="Цвет" Width="60">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Width="30" Height="20" CornerRadius="3" 
+                                        Background="{Binding Color, Converter={StaticResource HexToColorBrushConverter}}"
+                                        BorderBrush="{DynamicResource MaterialDesignBodyLight}" BorderThickness="1"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Действия" Width="140">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -149,32 +157,56 @@
                             <ComboBoxItem Content="м³"/>
                         </ComboBox>
 
-                        <!-- Color -->
-                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Vertical">
-                            <TextBlock Text="Выбор цвета" Margin="0,0,0,8" FontWeight="Medium"/>
-                            <Border BorderBrush="{DynamicResource MaterialDesignBody}" 
-                                    BorderThickness="1" 
-                                    CornerRadius="4" 
-                                    Padding="8"
-                                    Background="Transparent">
+                        <!-- Color ComboBox -->
+                        <ComboBox Grid.Row="3" Grid.Column="1"
+                                  SelectedValue="{Binding EditingFuelType.Color}"
+                                  SelectedValuePath="Tag"
+                                  materialDesign:HintAssist.Hint="Цвет"
+                                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                  Margin="0,0,0,16">
+                            <ComboBoxItem>
                                 <StackPanel Orientation="Horizontal">
-                                    <RadioButton Content="Зеленый" GroupName="FuelColor" 
-                                                 IsChecked="{Binding EditingFuelType.Color, Converter={StaticResource ColorRadioConverter}, ConverterParameter=green}"
-                                                 Margin="0,0,16,0"/>
-                                    <RadioButton Content="Красный" GroupName="FuelColor"
-                                                 IsChecked="{Binding EditingFuelType.Color, Converter={StaticResource ColorRadioConverter}, ConverterParameter=red}"
-                                                 Margin="0,0,16,0"/>
-                                    <RadioButton Content="Синий" GroupName="FuelColor"
-                                                 IsChecked="{Binding EditingFuelType.Color, Converter={StaticResource ColorRadioConverter}, ConverterParameter=blue}"
-                                                 Margin="0,0,16,0"/>
-                                    <RadioButton Content="Желтый" GroupName="FuelColor"
-                                                 IsChecked="{Binding EditingFuelType.Color, Converter={StaticResource ColorRadioConverter}, ConverterParameter=yellow}"
-                                                 Margin="0,0,16,0"/>
-                                    <RadioButton Content="Другой" GroupName="FuelColor"
-                                                 IsChecked="{Binding EditingFuelType.Color, Converter={StaticResource ColorRadioConverter}, ConverterParameter=other}"/>
+                                    <Border Width="20" Height="20" CornerRadius="3" Background="#228B22" Margin="0,0,8,0" BorderBrush="Gray" BorderThickness="1"/>
+                                    <TextBlock Text="Зеленый"/>
                                 </StackPanel>
-                            </Border>
-                        </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem Tag="#FF0000">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="20" Height="20" CornerRadius="3" Background="#FF0000" Margin="0,0,8,0" BorderBrush="Gray" BorderThickness="1"/>
+                                    <TextBlock Text="Красный"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem Tag="#0000FF">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="20" Height="20" CornerRadius="3" Background="#0000FF" Margin="0,0,8,0" BorderBrush="Gray" BorderThickness="1"/>
+                                    <TextBlock Text="Синий"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem Tag="#FFD700">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="20" Height="20" CornerRadius="3" Background="#FFD700" Margin="0,0,8,0" BorderBrush="Gray" BorderThickness="1"/>
+                                    <TextBlock Text="Желтый"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem Tag="#FFA500">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="20" Height="20" CornerRadius="3" Background="#FFA500" Margin="0,0,8,0" BorderBrush="Gray" BorderThickness="1"/>
+                                    <TextBlock Text="Оранжевый"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem Tag="#800080">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="20" Height="20" CornerRadius="3" Background="#800080" Margin="0,0,8,0" BorderBrush="Gray" BorderThickness="1"/>
+                                    <TextBlock Text="Фиолетовый"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem Tag="#000000">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="20" Height="20" CornerRadius="3" Background="#000000" Margin="0,0,8,0" BorderBrush="Gray" BorderThickness="1"/>
+                                    <TextBlock Text="Черный"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                        </ComboBox>
 
                         <!-- Optional fields header -->
                         <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
