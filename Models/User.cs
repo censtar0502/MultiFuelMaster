@@ -37,6 +37,7 @@ namespace MultiFuelMaster.Models
         public bool IsActive { get; set; } = true;
         
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime LastUpdated { get; set; } = DateTime.Now;
         public DateTime LastLogin { get; set; }
         
         /// <summary>
@@ -50,23 +51,55 @@ namespace MultiFuelMaster.Models
         public DateTime? LogoutTime { get; set; }
         
         /// <summary>
-        /// Hash password using SHA256 with salt
+        /// Hash password using PBKDF2
         /// </summary>
         public static string HashPassword(string password)
         {
-            using var sha256 = SHA256.Create();
-            var salt = "MultiFuelMaster2024";
-            var combined = password + salt;
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(combined));
-            return Convert.ToBase64String(bytes);
+            if (string.IsNullOrEmpty(password))
+                return string.Empty;
+
+            using var pbkdf2 = new Rfc2898DeriveBytes(
+                password,
+                16,
+                10000,
+                HashAlgorithmName.SHA256);
+
+            byte[] hash = pbkdf2.GetBytes(32);
+            byte[] salt = pbkdf2.Salt;
+
+            return Convert.ToBase64String(salt) + ":" + Convert.ToBase64String(hash);
         }
-        
+
         /// <summary>
         /// Verify password
         /// </summary>
         public bool VerifyPassword(string password)
         {
-            return PasswordHash == HashPassword(password);
+            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(PasswordHash))
+                return false;
+
+            try
+            {
+                var parts = PasswordHash.Split(':');
+                if (parts.Length != 2)
+                    return false;
+
+                byte[] salt = Convert.FromBase64String(parts[0]);
+                byte[] expectedHash = Convert.FromBase64String(parts[1]);
+
+                using var pbkdf2 = new Rfc2898DeriveBytes(
+                    password,
+                    salt,
+                    10000,
+                    HashAlgorithmName.SHA256);
+
+                byte[] hash = pbkdf2.GetBytes(32);
+                return CryptographicOperations.FixedTimeEquals(hash, expectedHash);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

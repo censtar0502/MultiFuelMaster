@@ -24,7 +24,7 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<bool> HasAdminUserAsync()
         {
-            return await _context.Users.AnyAsync(u => u.Role == UserRole.SuperAdmin && u.IsActive);
+            return await _context.Users.AnyAsync(u => u.RoleId == 1 && u.IsActive);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace MultiFuelMaster.Services
                     Login = login,
                     PasswordHash = User.HashPassword(password),
                     FullName = fullName,
-                    Role = UserRole.SuperAdmin,
+                    RoleId = 1,
                     IsActive = true,
                     CreatedDate = DateTime.Now
                 };

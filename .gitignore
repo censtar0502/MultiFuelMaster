@@ -45,6 +45,9 @@ packages/
 publish/
 out/
 TestResults/
+# Project docs (must not be committed)
+Docs/
+**/Docs/
 
 # Visual Studio Code
 .vscode/
@@ -73,3 +76,9 @@ logs/
 ~*
 *.bak
 *.orig
+
+# Docs/text files must not be committed
+*.txt
+*.md
+*.doc
+*.docx

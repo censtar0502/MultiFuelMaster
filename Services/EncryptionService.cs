@@ -83,5 +83,57 @@ namespace MultiFuelMaster.Services
                 return string.Empty;
             }
         }
+
+        /// <summary>
+        /// Hash a password using PBKDF2
+        /// </summary>
+        public static string HashPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+                return string.Empty;
+
+            using var pbkdf2 = new Rfc2898DeriveBytes(
+                password,
+                16,
+                10000,
+                HashAlgorithmName.SHA256);
+
+            byte[] hash = pbkdf2.GetBytes(32);
+            byte[] salt = pbkdf2.Salt;
+
+            return Convert.ToBase64String(salt) + ":" + Convert.ToBase64String(hash);
+        }
+
+        /// <summary>
+        /// Verify a password against a hash
+        /// </summary>
+        public static bool VerifyPassword(string password, string storedHash)
+        {
+            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(storedHash))
+                return false;
+
+            try
+            {
+                var parts = storedHash.Split(':');
+                if (parts.Length != 2)
+                    return false;
+
+                byte[] salt = Convert.FromBase64String(parts[0]);
+                byte[] expectedHash = Convert.FromBase64String(parts[1]);
+
+                using var pbkdf2 = new Rfc2898DeriveBytes(
+                    password,
+                    salt,
+                    10000,
+                    HashAlgorithmName.SHA256);
+
+                byte[] hash = pbkdf2.GetBytes(32);
+                return CryptographicOperations.FixedTimeEquals(hash, expectedHash);
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
