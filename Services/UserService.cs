@@ -10,16 +10,17 @@ namespace MultiFuelMaster.Services
 {
     public class UserService
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UserService(AppDbContext context)
+        public UserService(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public async Task<List<User>> GetAllAsync()
         {
-            return await _context.Users
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Users
                 .Include(u => u.Role)
                 .OrderBy(u => u.Login)
                 .ToListAsync();
@@ -27,14 +28,16 @@ namespace MultiFuelMaster.Services
 
         public async Task<User?> GetByIdAsync(int id)
         {
-            return await _context.Users
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<List<UserRole>> GetAllRolesAsync()
         {
-            return await _context.UserRoles
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.UserRoles
                 .Where(r => r.IsActive)
                 .OrderBy(r => r.Name)
                 .ToListAsync();
@@ -42,16 +45,18 @@ namespace MultiFuelMaster.Services
 
         public async Task<User> CreateAsync(User user)
         {
+            await using var context = await _contextFactory.CreateDbContextAsync();
             user.CreatedDate = DateTime.Now;
             user.LastUpdated = DateTime.Now;
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
             return user;
         }
 
         public async Task UpdateAsync(User user)
         {
-            var existing = await _context.Users.FindAsync(user.Id);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var existing = await context.Users.FindAsync(user.Id);
             if (existing != null)
             {
                 existing.Login = user.Login;
@@ -63,23 +68,25 @@ namespace MultiFuelMaster.Services
                 {
                     existing.PasswordHash = user.PasswordHash;
                 }
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
         }
 
         public async Task DeleteAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var user = await context.Users.FindAsync(id);
             if (user != null)
             {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
+                context.Users.Remove(user);
+                await context.SaveChangesAsync();
             }
         }
 
         public async Task<bool> IsLoginExistsAsync(string login, int? excludeId = null)
         {
-            var query = _context.Users.Where(u => u.Login == login);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var query = context.Users.Where(u => u.Login == login);
             if (excludeId.HasValue)
             {
                 query = query.Where(u => u.Id != excludeId.Value);
@@ -89,33 +96,36 @@ namespace MultiFuelMaster.Services
 
         public async Task<UserRole> CreateRoleAsync(UserRole role)
         {
+            await using var context = await _contextFactory.CreateDbContextAsync();
             role.CreatedDate = DateTime.Now;
             role.LastUpdated = DateTime.Now;
-            _context.UserRoles.Add(role);
-            await _context.SaveChangesAsync();
+            context.UserRoles.Add(role);
+            await context.SaveChangesAsync();
             return role;
         }
 
         public async Task UpdateRoleAsync(UserRole role)
         {
-            var existing = await _context.UserRoles.FindAsync(role.Id);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var existing = await context.UserRoles.FindAsync(role.Id);
             if (existing != null)
             {
                 existing.Name = role.Name;
                 existing.Description = role.Description;
                 existing.IsActive = role.IsActive;
                 existing.LastUpdated = DateTime.Now;
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
         }
 
         public async Task DeleteRoleAsync(int id)
         {
-            var role = await _context.UserRoles.FindAsync(id);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var role = await context.UserRoles.FindAsync(id);
             if (role != null)
             {
-                _context.UserRoles.Remove(role);
-                await _context.SaveChangesAsync();
+                context.UserRoles.Remove(role);
+                await context.SaveChangesAsync();
             }
         }
     }

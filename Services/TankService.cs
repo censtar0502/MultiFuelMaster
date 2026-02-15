@@ -10,16 +10,17 @@ namespace MultiFuelMaster.Services
 {
     public class TankService
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public TankService(AppDbContext context)
+        public TankService(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public async Task<List<Tank>> GetAllAsync()
         {
-            return await _context.Tanks
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Tanks
                 .Include(t => t.FuelType)
                 .OrderBy(t => t.Number)
                 .ToListAsync();
@@ -27,14 +28,16 @@ namespace MultiFuelMaster.Services
 
         public async Task<Tank?> GetByIdAsync(int id)
         {
-            return await _context.Tanks
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Tanks
                 .Include(t => t.FuelType)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<List<FuelType>> GetAvailableFuelTypesAsync()
         {
-            return await _context.FuelTypes
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.FuelTypes
                 .Where(ft => ft.IsActive)
                 .OrderBy(ft => ft.ShortName)
                 .ToListAsync();
@@ -42,16 +45,18 @@ namespace MultiFuelMaster.Services
 
         public async Task<Tank> CreateAsync(Tank tank)
         {
+            await using var context = await _contextFactory.CreateDbContextAsync();
             tank.CreatedDate = DateTime.Now;
             tank.LastUpdated = DateTime.Now;
-            _context.Tanks.Add(tank);
-            await _context.SaveChangesAsync();
+            context.Tanks.Add(tank);
+            await context.SaveChangesAsync();
             return tank;
         }
 
         public async Task UpdateAsync(Tank tank)
         {
-            var existing = await _context.Tanks.FindAsync(tank.Id);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var existing = await context.Tanks.FindAsync(tank.Id);
             if (existing != null)
             {
                 existing.Number = tank.Number;
@@ -65,29 +70,32 @@ namespace MultiFuelMaster.Services
                 existing.Status = tank.Status;
                 existing.IsActive = tank.IsActive;
                 existing.LastUpdated = DateTime.Now;
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
         }
 
         public async Task DeleteAsync(int id)
         {
-            var tank = await _context.Tanks.FindAsync(id);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var tank = await context.Tanks.FindAsync(id);
             if (tank != null)
             {
-                _context.Tanks.Remove(tank);
-                await _context.SaveChangesAsync();
+                context.Tanks.Remove(tank);
+                await context.SaveChangesAsync();
             }
         }
 
         public async Task<int> GetNextNumberAsync()
         {
-            var maxNumber = await _context.Tanks.MaxAsync(t => (int?)t.Number) ?? 0;
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var maxNumber = await context.Tanks.MaxAsync(t => (int?)t.Number) ?? 0;
             return maxNumber + 1;
         }
 
         public async Task<bool> IsNumberExistsAsync(int number, int? excludeId = null)
         {
-            var query = _context.Tanks.Where(t => t.Number == number);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var query = context.Tanks.Where(t => t.Number == number);
             if (excludeId.HasValue)
             {
                 query = query.Where(t => t.Id != excludeId.Value);

@@ -12,11 +12,11 @@ namespace MultiFuelMaster.Services
     /// </summary>
     public class AuthService
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public AuthService(AppDbContext context)
+        public AuthService(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         /// <summary>
@@ -24,7 +24,8 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<bool> HasAdminUserAsync()
         {
-            return await _context.Users.AnyAsync(u => u.RoleId == 1 && u.IsActive);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Users.AnyAsync(u => u.RoleId == 1 && u.IsActive);
         }
 
         /// <summary>
@@ -34,8 +35,10 @@ namespace MultiFuelMaster.Services
         {
             try
             {
+                await using var context = await _contextFactory.CreateDbContextAsync();
+                
                 // Check if already exists
-                if (await _context.Users.AnyAsync(u => u.Login == login))
+                if (await context.Users.AnyAsync(u => u.Login == login))
                 {
                     return (false, "Пользователь с таким логином уже существует");
                 }
@@ -62,8 +65,8 @@ namespace MultiFuelMaster.Services
                     CreatedDate = DateTime.Now
                 };
 
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+                context.Users.Add(user);
+                await context.SaveChangesAsync();
 
                 return (true, "Администратор успешно создан");
             }
@@ -80,7 +83,9 @@ namespace MultiFuelMaster.Services
         {
             try
             {
-                var user = await _context.Users
+                await using var context = await _contextFactory.CreateDbContextAsync();
+                
+                var user = await context.Users
                     .FirstOrDefaultAsync(u => u.Login == login && u.IsActive);
 
                 if (user == null)
@@ -95,7 +100,7 @@ namespace MultiFuelMaster.Services
 
                 // Update last login
                 user.LastLogin = DateTime.Now;
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
 
                 return (true, user, "Вход выполнен успешно");
             }

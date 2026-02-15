@@ -12,12 +12,12 @@ namespace MultiFuelMaster.Services
     /// </summary>
     public class StationSettingsService
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly EncryptionService _encryptionService;
 
-        public StationSettingsService(AppDbContext context, EncryptionService encryptionService)
+        public StationSettingsService(IDbContextFactory<AppDbContext> contextFactory, EncryptionService encryptionService)
         {
-            _context = context;
+            _contextFactory = contextFactory;
             _encryptionService = encryptionService;
         }
 
@@ -26,7 +26,8 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<StationSettings> GetSettingsAsync()
         {
-            var settings = await _context.StationSettings.FirstOrDefaultAsync();
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var settings = await context.StationSettings.FirstOrDefaultAsync();
             
             if (settings == null)
             {
@@ -41,8 +42,8 @@ namespace MultiFuelMaster.Services
                     ArchivePathEncrypted = _encryptionService.Encrypt("")
                 };
                 
-                _context.StationSettings.Add(settings);
-                await _context.SaveChangesAsync();
+                context.StationSettings.Add(settings);
+                await context.SaveChangesAsync();
             }
             
             return settings;
@@ -72,12 +73,13 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task SaveSettingsAsync(StationSettingsDisplayModel model)
         {
-            var settings = await _context.StationSettings.FirstOrDefaultAsync();
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var settings = await context.StationSettings.FirstOrDefaultAsync();
             
             if (settings == null)
             {
                 settings = new StationSettings { Id = model.Id };
-                _context.StationSettings.Add(settings);
+                context.StationSettings.Add(settings);
             }
             
             settings.StationNameEncrypted = _encryptionService.Encrypt(model.StationName ?? "");
@@ -88,7 +90,7 @@ namespace MultiFuelMaster.Services
             settings.ArchivePathEncrypted = _encryptionService.Encrypt(model.ArchivePath ?? "");
             settings.LastModified = DateTime.Now;
             
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
     }
 

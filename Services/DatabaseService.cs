@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MultiFuelMaster.Data;
 using MultiFuelMaster.Models;
@@ -9,11 +13,11 @@ namespace MultiFuelMaster.Services
     /// </summary>
     public class DatabaseService
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public DatabaseService(AppDbContext context)
+        public DatabaseService(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         #region Read Operations (Public)
@@ -23,7 +27,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<List<FuelStation>> GetAllStationsAsync()
         {
-            return await _context.FuelStations
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.FuelStations
+                .AsNoTracking()
                 .Where(s => s.IsActive)
                 .OrderBy(s => s.Name)
                 .ToListAsync();
@@ -34,7 +40,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<FuelStation?> GetStationByIdAsync(int id)
         {
-            return await _context.FuelStations
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.FuelStations
+                .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Id == id && s.IsActive);
         }
 
@@ -43,7 +51,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<List<FuelType>> GetAllFuelTypesAsync()
         {
-            return await _context.FuelTypes
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.FuelTypes
+                .AsNoTracking()
                 .Where(f => f.IsActive)
                 .OrderBy(f => f.ShortName)
                 .ToListAsync();
@@ -54,7 +64,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<FuelType?> GetFuelTypeByIdAsync(int id)
         {
-            return await _context.FuelTypes
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.FuelTypes
+                .AsNoTracking()
                 .FirstOrDefaultAsync(f => f.Id == id && f.IsActive);
         }
 
@@ -63,7 +75,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<List<Dispenser>> GetDispensersByStationAsync(int stationId)
         {
-            return await _context.Dispensers
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Dispensers
+                .AsNoTracking()
                 .Include(d => d.FuelType)
                 .Where(d => d.StationId == stationId && d.IsOperational)
                 .OrderBy(d => d.DispenserNumber)
@@ -75,7 +89,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<Dispenser?> GetDispenserByIdAsync(int id)
         {
-            return await _context.Dispensers
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Dispensers
+                .AsNoTracking()
                 .Include(d => d.FuelType)
                 .Include(d => d.Station)
                 .FirstOrDefaultAsync(d => d.Id == id && d.IsOperational);
@@ -86,7 +102,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<List<Transaction>> GetRecentTransactionsAsync(int count = 100)
         {
-            return await _context.Transactions
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Transactions
+                .AsNoTracking()
                 .Include(t => t.Dispenser)
                 .ThenInclude(d => d.FuelType)
                 .Include(t => t.Dispenser)
@@ -101,7 +119,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<List<Transaction>> GetTransactionsByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
-            return await _context.Transactions
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Transactions
+                .AsNoTracking()
                 .Include(t => t.Dispenser)
                 .ThenInclude(d => d.FuelType)
                 .Include(t => t.Dispenser)
@@ -116,7 +136,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<List<Transaction>> GetTransactionsByDispenserAsync(int dispenserId, int count = 50)
         {
-            return await _context.Transactions
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Transactions
+                .AsNoTracking()
                 .Include(t => t.Dispenser)
                 .ThenInclude(d => d.FuelType)
                 .Where(t => t.DispenserId == dispenserId)
@@ -130,7 +152,9 @@ namespace MultiFuelMaster.Services
         /// </summary>
         public async Task<TransactionStatistics> GetTransactionStatisticsAsync(DateTime startDate, DateTime endDate)
         {
-            var transactions = await _context.Transactions
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var transactions = await context.Transactions
+                .AsNoTracking()
                 .Where(t => t.TransactionDate >= startDate && t.TransactionDate <= endDate)
                 .ToListAsync();
 
@@ -155,12 +179,13 @@ namespace MultiFuelMaster.Services
         /// </summary>
         internal async Task InitializeDatabaseAsync()
         {
-            await _context.Database.EnsureCreatedAsync();
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            await context.Database.EnsureCreatedAsync();
             
             // Check if we need to migrate
-            if (_context.Database.GetPendingMigrations().Any())
+            if (context.Database.GetPendingMigrations().Any())
             {
-                await _context.Database.MigrateAsync();
+                await context.Database.MigrateAsync();
             }
         }
 

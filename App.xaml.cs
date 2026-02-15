@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using MultiFuelMaster.Services;
 using MultiFuelMaster.Data;
@@ -14,7 +15,7 @@ namespace MultiFuelMaster
         private ServiceProvider? _serviceProvider;
         private User? _currentUser;
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             try
             {
@@ -32,7 +33,7 @@ namespace MultiFuelMaster
                 dbContext.Database.EnsureCreated();
 
                 var authService = _serviceProvider.GetRequiredService<AuthService>();
-                bool hasAdmin = authService.HasAdminUserAsync().Result;
+                bool hasAdmin = await authService.HasAdminUserAsync();
 
                 if (!hasAdmin)
                 {
@@ -138,14 +139,17 @@ namespace MultiFuelMaster
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AppDbContext>();
-            services.AddSingleton<DatabaseService>();
-            services.AddSingleton<AuthService>();
+            // DbContextFactory для создания контекста на каждую операцию
+            services.AddDbContextFactory<AppDbContext>();
+            
+            // Сервисы - Transient (создаются на каждый запрос)
+            services.AddTransient<DatabaseService>();
+            services.AddTransient<AuthService>();
             services.AddSingleton<EncryptionService>();
-            services.AddSingleton<StationSettingsService>();
-            services.AddSingleton<FuelTypeService>();
-            services.AddSingleton<TankService>();
-            services.AddSingleton<UserService>();
+            services.AddTransient<StationSettingsService>();
+            services.AddTransient<FuelTypeService>();
+            services.AddTransient<TankService>();
+            services.AddTransient<UserService>();
         }
 
         protected override void OnExit(ExitEventArgs e)
