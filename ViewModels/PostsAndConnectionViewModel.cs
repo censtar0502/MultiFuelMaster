@@ -86,5 +86,6 @@ namespace MultiFuelMaster.ViewModels
         [ObservableProperty] private int _deviceId = 1;
         [ObservableProperty] private int _pollingIntervalMs = 100;
         [ObservableProperty] private int _responseTimeoutMs = 50;
+        [ObservableProperty] private bool _isEmulator = true;
     }
 }

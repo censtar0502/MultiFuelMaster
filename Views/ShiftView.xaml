@@ -36,9 +36,9 @@
                             <TextBlock Text="{Binding ShiftStatus}" FontSize="18" FontWeight="SemiBold"/>
                             <TextBlock Opacity="0.65" FontSize="12">
                                 <Run Text="Открыта: "/>
-                                <Run Text="{Binding OpenTime, StringFormat={}{0:dd.MM.yyyy HH:mm}}" />
+                                <Run Text="{Binding OpenTime, StringFormat={}{0:dd.MM.yyyy HH:mm}, Mode=OneWay}" />
                                 <Run Text="   •   Закрыта: "/>
-                                <Run Text="{Binding CloseTime, StringFormat={}{0:dd.MM.yyyy HH:mm}}" />
+                                <Run Text="{Binding CloseTime, StringFormat={}{0:dd.MM.yyyy HH:mm}, Mode=OneWay}" />
                             </TextBlock>
                         </StackPanel>
                     </DockPanel>

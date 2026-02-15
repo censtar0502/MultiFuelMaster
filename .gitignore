@@ -36,6 +36,5 @@ Thumbs.db
 # Local docs / audits
 Docs/
 
-# Local database and logs
-*.db
+# Local logs
 logs/

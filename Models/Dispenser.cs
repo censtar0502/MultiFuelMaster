@@ -32,6 +32,12 @@ namespace MultiFuelMaster.Models
         public decimal CurrentPrice { get; set; }  // Current price per liter
         
         public bool IsOperational { get; set; } = true;
+
+        /// <summary>
+        /// Режим эмулятора (без реального оборудования)
+        /// </summary>
+        public bool IsEmulator { get; set; } = true;
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime LastUpdated { get; set; } = DateTime.Now;
     }
