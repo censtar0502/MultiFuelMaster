@@ -58,7 +58,7 @@
                                     </materialDesign:PackIcon>
 
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding DisplayName, Mode=OneWay}" FontWeight="SemiBold"/>
                                         <TextBlock Text="{Binding StatusTextRu}" Opacity="0.7" FontSize="12"/>
                                     </StackPanel>
 
@@ -93,7 +93,7 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Пост:" Opacity="0.7"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedPost.DisplayName}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedPost.DisplayName, Mode=OneWay}"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Связь:" Opacity="0.7"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedPost.Connection}"/>

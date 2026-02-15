@@ -68,7 +68,7 @@
                                             </Grid.RowDefinitions>
 
                                             <DockPanel Grid.Row="0">
-                                                <TextBlock Text="{Binding DisplayName}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding DisplayName, Mode=OneWay}" FontWeight="Bold"/>
                                                 <TextBlock DockPanel.Dock="Right" Text="{Binding StatusTextRu}" Opacity="0.72"/>
                                             </DockPanel>
 
@@ -149,7 +149,7 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Пост:" Opacity="0.7"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedPost.DisplayName}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedPost.DisplayName, Mode=OneWay}"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Статус:" Opacity="0.7"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedPost.StatusTextRu}"/>
@@ -188,7 +188,7 @@
                                         </Grid.RowDefinitions>
 
                                         <TextBlock Grid.Row="0" Grid.Column="0">
-                                            <Run Text="{Binding DisplayName}"/>
+                                            <Run Text="{Binding DisplayName, Mode=OneWay}"/>
                                             <Run Text=" — "/>
                                             <Run Text="{Binding FuelName}"/>
                                         </TextBlock>
