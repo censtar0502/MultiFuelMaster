@@ -25,6 +25,13 @@ namespace MultiFuelMaster.Models.Runtime
         Error = 9
     }
 
+    public enum PostPresetMode
+    {
+        None = 0,
+        Volume = 1,
+        Amount = 2
+    }
+
     public enum AlertSeverity
     {
         Info = 0,
@@ -58,10 +65,37 @@ namespace MultiFuelMaster.Models.Runtime
         private decimal _amount = 0m;
 
         [ObservableProperty]
+        private PostPresetMode _presetMode = PostPresetMode.None;
+
+        [ObservableProperty]
+        private decimal _presetValue = 0m;
+
+        [ObservableProperty]
         private string _vehiclePlate = string.Empty;
 
         [ObservableProperty]
         private DateTime _lastUpdate = DateTime.MinValue;
+
+        public string ConnectionTextRu => Connection switch
+        {
+            PostConnectionState.Online => "Онлайн",
+            PostConnectionState.NoResponse => "Нет ответа",
+            PostConnectionState.Error => "Ошибка",
+            _ => "Офлайн"
+        };
+
+        public string PresetTextRu
+        {
+            get
+            {
+                return PresetMode switch
+                {
+                    PostPresetMode.Volume when PresetValue > 0m => $"Задание: {PresetValue:0.00} л",
+                    PostPresetMode.Amount when PresetValue > 0m => $"Задание: {PresetValue:N0}",
+                    _ => "Задание: —"
+                };
+            }
+        }
 
         public string StatusTextRu
         {
@@ -89,6 +123,9 @@ namespace MultiFuelMaster.Models.Runtime
 
         partial void OnConnectionChanged(PostConnectionState value) => OnPropertyChanged(nameof(StatusTextRu));
         partial void OnOperationChanged(PostOperationState value) => OnPropertyChanged(nameof(StatusTextRu));
+
+        partial void OnPresetModeChanged(PostPresetMode value) => OnPropertyChanged(nameof(PresetTextRu));
+        partial void OnPresetValueChanged(decimal value) => OnPropertyChanged(nameof(PresetTextRu));
     }
 
     public sealed partial class TankRuntimeState : ObservableObject

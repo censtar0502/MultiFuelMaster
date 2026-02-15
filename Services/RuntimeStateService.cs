@@ -36,9 +36,14 @@ namespace MultiFuelMaster.Services
                     Price = 0m,
                     VolumeL = 0.0,
                     Amount = 0m,
-                    LastUpdate = DateTime.MinValue
+                    PresetMode = PostPresetMode.None,
+                    PresetValue = 0m,
+                    LastUpdate = DateTime.Now
                 });
             }
+
+            // Демонстрационный набор статусов (чтобы плитки сразу выглядели "живыми")
+            ApplyDemoLayout();
 
             // Пример 4 резервуаров
             for (int i = 1; i <= 4; i++)
@@ -66,6 +71,77 @@ namespace MultiFuelMaster.Services
             _uiTimer.Interval = TimeSpan.FromMilliseconds(500);
             _uiTimer.Tick += (_, __) => TickSimulation();
             _uiTimer.Start();
+        }
+
+        private void ApplyDemoLayout()
+        {
+            // Пост 1: онлайн, готов
+            var p1 = Posts.First(p => p.PostNumber == 1);
+            p1.Connection = PostConnectionState.Online;
+            p1.Operation = PostOperationState.Ready;
+            p1.FuelName = "А-92";
+            p1.Price = 8750m;
+            p1.PresetMode = PostPresetMode.Amount;
+            p1.PresetValue = 100000m;
+
+            // Пост 2: отпуск
+            var p2 = Posts.First(p => p.PostNumber == 2);
+            p2.Connection = PostConnectionState.Online;
+            p2.Operation = PostOperationState.Fuelling;
+            p2.FuelName = "А-95";
+            p2.Price = 9450m;
+            p2.PresetMode = PostPresetMode.Volume;
+            p2.PresetValue = 20.00m;
+            p2.VehiclePlate = "01A123BC";
+            p2.VolumeL = 6.50;
+            p2.Amount = (decimal)p2.VolumeL * p2.Price;
+
+            // Пост 3: пауза
+            var p3 = Posts.First(p => p.PostNumber == 3);
+            p3.Connection = PostConnectionState.Online;
+            p3.Operation = PostOperationState.Paused;
+            p3.FuelName = "ДТ";
+            p3.Price = 9800m;
+            p3.PresetMode = PostPresetMode.Amount;
+            p3.PresetValue = 150000m;
+            p3.VehiclePlate = "10B777AA";
+            p3.VolumeL = 10.20;
+            p3.Amount = (decimal)p3.VolumeL * p3.Price;
+
+            // Пост 4: нет ответа
+            var p4 = Posts.First(p => p.PostNumber == 4);
+            p4.Connection = PostConnectionState.NoResponse;
+            p4.Operation = PostOperationState.Unknown;
+            p4.FuelName = "—";
+            p4.Price = 0m;
+            p4.PresetMode = PostPresetMode.None;
+            p4.PresetValue = 0m;
+
+            // Пост 5: офлайн
+            var p5 = Posts.First(p => p.PostNumber == 5);
+            p5.Connection = PostConnectionState.Offline;
+            p5.Operation = PostOperationState.Unknown;
+            p5.FuelName = "—";
+
+            // Пост 6: ошибка
+            var p6 = Posts.First(p => p.PostNumber == 6);
+            p6.Connection = PostConnectionState.Error;
+            p6.Operation = PostOperationState.Error;
+            p6.FuelName = "—";
+
+            // Пост 7: вызов
+            var p7 = Posts.First(p => p.PostNumber == 7);
+            p7.Connection = PostConnectionState.Online;
+            p7.Operation = PostOperationState.Calling;
+            p7.FuelName = "А-80";
+            p7.Price = 8200m;
+
+            // Пост 8: авторизация
+            var p8 = Posts.First(p => p.PostNumber == 8);
+            p8.Connection = PostConnectionState.Online;
+            p8.Operation = PostOperationState.Authorized;
+            p8.FuelName = "А-92";
+            p8.Price = 8750m;
         }
 
         public int OnlinePostsCount => Posts.Count(p => p.Connection == PostConnectionState.Online);
@@ -129,6 +205,10 @@ namespace MultiFuelMaster.Services
                         p.Operation = PostOperationState.Fuelling;
                         p.VolumeL = 0.0;
                         p.Amount = 0m;
+                        p.PresetMode = _rng.NextDouble() < 0.5 ? PostPresetMode.Volume : PostPresetMode.Amount;
+                        p.PresetValue = p.PresetMode == PostPresetMode.Volume ? 20.0m : 100000m;
+                        if (string.IsNullOrWhiteSpace(p.VehiclePlate))
+                            p.VehiclePlate = $"01X{_rng.Next(100, 999)}ZZ";
                         p.LastUpdate = DateTime.Now;
                     }
 
@@ -141,6 +221,8 @@ namespace MultiFuelMaster.Services
                         if (p.VolumeL > 15 && _rng.NextDouble() < 0.25)
                         {
                             p.Operation = PostOperationState.End;
+                            p.PresetMode = PostPresetMode.None;
+                            p.PresetValue = 0m;
                             Alerts.Insert(0, new AlertRuntimeItem { Severity = AlertSeverity.Info, Title = p.DisplayName, Message = $"Завершено: {p.VolumeL:0.00} л" });
                             TrimAlerts();
                         }
@@ -151,6 +233,7 @@ namespace MultiFuelMaster.Services
                         p.Operation = PostOperationState.Ready;
                         p.VolumeL = 0.0;
                         p.Amount = 0m;
+                        p.VehiclePlate = string.Empty;
                         p.LastUpdate = DateTime.Now;
                     }
                 }
