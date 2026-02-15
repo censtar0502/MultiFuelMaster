@@ -1,70 +1,48 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using MultiFuelMaster.Models;
+using CommunityToolkit.Mvvm.Input;
+using MultiFuelMaster.Models.Runtime;
 using MultiFuelMaster.Services;
 
 namespace MultiFuelMaster.ViewModels
 {
     /// <summary>
-    /// Dashboard view model
+    /// Панель: посты (1–8), резервуары, тревоги и детали выбранного поста.
     /// </summary>
     public partial class DashboardViewModel : BaseViewModel
     {
-        private readonly DatabaseService _databaseService;
+        private readonly RuntimeStateService _runtime;
+
+        public ObservableCollection<PostRuntimeState> Posts => _runtime.Posts;
+        public ObservableCollection<TankRuntimeState> Tanks => _runtime.Tanks;
+        public ObservableCollection<AlertRuntimeItem> Alerts => _runtime.Alerts;
 
         [ObservableProperty]
-        private List<FuelStation> _stations = new();
+        private PostRuntimeState? _selectedPost;
 
-        [ObservableProperty]
-        private int _totalStations;
-
-        [ObservableProperty]
-        private int _totalDispensers;
-
-        [ObservableProperty]
-        private decimal _todayRevenue;
-
-        [ObservableProperty]
-        private int _todayTransactions;
-
-        public DashboardViewModel(DatabaseService databaseService)
+        public DashboardViewModel(DatabaseService _unusedDatabaseService, RuntimeStateService runtime)
         {
-            _databaseService = databaseService;
-            _ = LoadDashboardDataAsync();
+            _runtime = runtime;
+
+            if (Posts.Count > 0)
+                SelectedPost = Posts[0];
         }
 
-        private async Task LoadDashboardDataAsync()
+        [RelayCommand]
+        private void SelectPost(PostRuntimeState? post)
         {
-            try
-            {
-                IsLoading = true;
-                ClearError();
+            if (post != null)
+                SelectedPost = post;
+        }
 
-                // Load stations
-                Stations = await _databaseService.GetAllStationsAsync();
-                TotalStations = Stations.Count;
-
-                // Calculate total dispensers
-                foreach (var station in Stations)
-                {
-                    var dispensers = await _databaseService.GetDispensersByStationAsync(station.Id);
-                    TotalDispensers += dispensers.Count;
-                }
-
-                // Load today's statistics
-                var today = DateTime.Today;
-                var tomorrow = today.AddDays(1);
-                var stats = await _databaseService.GetTransactionStatisticsAsync(today, tomorrow);
-                
-                TodayRevenue = stats.TotalRevenue;
-                TodayTransactions = stats.TotalTransactions;
-            }
-            catch (Exception ex)
+        [RelayCommand]
+        private void ClearAlerts()
+        {
+            // Очищаем только инфо-сообщения, критичные/предупреждения оставляем (скелет)
+            for (int i = Alerts.Count - 1; i >= 0; i--)
             {
-                ErrorMessage = $"Ошибка загрузки данных: {ex.Message}";
-            }
-            finally
-            {
-                IsLoading = false;
+                if (Alerts[i].Severity == AlertSeverity.Info)
+                    Alerts.RemoveAt(i);
             }
         }
     }

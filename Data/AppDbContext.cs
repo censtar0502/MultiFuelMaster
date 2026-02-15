@@ -21,7 +21,14 @@ namespace MultiFuelMaster.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlite("Data Source=fuelmaster.db");
+                var baseDir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "MultiFuelMaster");
+
+                System.IO.Directory.CreateDirectory(baseDir);
+                var dbPath = System.IO.Path.Combine(baseDir, "fuelmaster.db");
+
+                optionsBuilder.UseSqlite($"Data Source={dbPath}");
             }
         }
 
@@ -136,8 +143,8 @@ namespace MultiFuelMaster.Data
                     Latitude = 41.3111, 
                     Longitude = 69.2797,
                     PhoneNumber = "+998901234567",
-                    CreatedDate = DateTime.Now, 
-                    LastUpdated = DateTime.Now 
+                    CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), 
+                    LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) 
                 },
                 new FuelStation 
                 { 
@@ -147,27 +154,27 @@ namespace MultiFuelMaster.Data
                     Latitude = 41.3256, 
                     Longitude = 69.2401,
                     PhoneNumber = "+998907654321",
-                    CreatedDate = DateTime.Now, 
-                    LastUpdated = DateTime.Now 
+                    CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), 
+                    LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) 
                 }
             );
 
             // Seed dispensers
             modelBuilder.Entity<Dispenser>().HasData(
-                new Dispenser { Id = 1, StationId = 1, FuelTypeId = 1, DispenserNumber = "1", CurrentVolume = 1000, TotalVolume = 0, CurrentPrice = 45.50m, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
-                new Dispenser { Id = 2, StationId = 1, FuelTypeId = 2, DispenserNumber = "2", CurrentVolume = 1000, TotalVolume = 0, CurrentPrice = 48.75m, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
-                new Dispenser { Id = 3, StationId = 1, FuelTypeId = 3, DispenserNumber = "3", CurrentVolume = 800, TotalVolume = 0, CurrentPrice = 52.00m, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
-                new Dispenser { Id = 4, StationId = 2, FuelTypeId = 1, DispenserNumber = "1", CurrentVolume = 1200, TotalVolume = 0, CurrentPrice = 45.50m, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
-                new Dispenser { Id = 5, StationId = 2, FuelTypeId = 4, DispenserNumber = "2", CurrentVolume = 500, TotalVolume = 0, CurrentPrice = 22.30m, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now }
+                new Dispenser { Id = 1, StationId = 1, FuelTypeId = 1, DispenserNumber = "1", CurrentVolume = 1000, TotalVolume = 0, CurrentPrice = 45.50m, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) },
+                new Dispenser { Id = 2, StationId = 1, FuelTypeId = 2, DispenserNumber = "2", CurrentVolume = 1000, TotalVolume = 0, CurrentPrice = 48.75m, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) },
+                new Dispenser { Id = 3, StationId = 1, FuelTypeId = 3, DispenserNumber = "3", CurrentVolume = 800, TotalVolume = 0, CurrentPrice = 52.00m, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) },
+                new Dispenser { Id = 4, StationId = 2, FuelTypeId = 1, DispenserNumber = "1", CurrentVolume = 1200, TotalVolume = 0, CurrentPrice = 45.50m, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) },
+                new Dispenser { Id = 5, StationId = 2, FuelTypeId = 4, DispenserNumber = "2", CurrentVolume = 500, TotalVolume = 0, CurrentPrice = 22.30m, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) }
             );
 
             // Seed user roles
             modelBuilder.Entity<UserRole>().HasData(
-                new UserRole { Id = 1, Name = "СуперАдмин", Description = "Полные права на систему", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
-                new UserRole { Id = 2, Name = "Администратор", Description = "Управление станцией и пользователями", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
-                new UserRole { Id = 3, Name = "Старший оператор", Description = "Управление операторами и отчеты", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
-                new UserRole { Id = 4, Name = "Оператор", Description = "Основные операции с топливом", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now },
-                new UserRole { Id = 5, Name = "Конфигуратор", Description = "Настройка системы", IsActive = true, CreatedDate = DateTime.Now, LastUpdated = DateTime.Now }
+                new UserRole { Id = 1, Name = "СуперАдмин", Description = "Полные права на систему", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) },
+                new UserRole { Id = 2, Name = "Администратор", Description = "Управление станцией и пользователями", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) },
+                new UserRole { Id = 3, Name = "Старший оператор", Description = "Управление операторами и отчеты", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) },
+                new UserRole { Id = 4, Name = "Оператор", Description = "Основные операции с топливом", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) },
+                new UserRole { Id = 5, Name = "Конфигуратор", Description = "Настройка системы", IsActive = true, CreatedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local), LastUpdated = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Local) }
             );
         }
     }

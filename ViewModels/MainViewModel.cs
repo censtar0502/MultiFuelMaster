@@ -1,14 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MultiFuelMaster.Views;
-using MultiFuelMaster.Services;
 using MultiFuelMaster.Models;
-using MultiFuelMaster.ViewModels;
+using MultiFuelMaster.Services;
+using MultiFuelMaster.Views;
 
 namespace MultiFuelMaster.ViewModels
 {
     /// <summary>
-    /// Main application view model
+    /// Main application view model (navigation + shell state)
     /// </summary>
     public partial class MainViewModel : BaseViewModel
     {
@@ -17,6 +16,8 @@ namespace MultiFuelMaster.ViewModels
         private readonly FuelTypeService _fuelTypeService;
         private readonly TankService _tankService;
         private readonly UserService _userService;
+        private readonly RuntimeStateService _runtimeState;
+
         private User? _currentUser;
         private readonly Action _onExit;
 
@@ -24,7 +25,7 @@ namespace MultiFuelMaster.ViewModels
         private object _currentView = null!;
 
         [ObservableProperty]
-        private string _windowTitle = "MultiFuelMaster - Система управления АЗС";
+        private string _windowTitle = "MultiFuelMaster — Система управления АЗС";
 
         [ObservableProperty]
         private bool _isNavigationEnabled = true;
@@ -35,85 +36,67 @@ namespace MultiFuelMaster.ViewModels
         [ObservableProperty]
         private bool _isAdminMenuVisible = false;
 
-        public MainViewModel(DatabaseService databaseService, StationSettingsService stationSettingsService, FuelTypeService fuelTypeService, TankService tankService, UserService userService, User? currentUser = null, Action? onExit = null)
+        // StatusBar (оперативная строка)
+        [ObservableProperty]
+        private string _statusShift = "Смена: закрыта";
+
+        [ObservableProperty]
+        private string _statusPosts = "Посты: 0/8 онлайн";
+
+        [ObservableProperty]
+        private string _statusAlerts = "Тревоги: 0";
+
+        public MainViewModel(
+            DatabaseService databaseService,
+            StationSettingsService stationSettingsService,
+            FuelTypeService fuelTypeService,
+            TankService tankService,
+            UserService userService,
+            RuntimeStateService runtimeState,
+            User? currentUser = null,
+            Action? onExit = null)
         {
             _databaseService = databaseService;
             _stationSettingsService = stationSettingsService;
             _fuelTypeService = fuelTypeService;
             _tankService = tankService;
             _userService = userService;
+            _runtimeState = runtimeState;
+
             _onExit = onExit ?? (() => System.Windows.Application.Current.Shutdown());
-            
-            // Set current user info
+
             if (currentUser != null)
             {
                 _currentUser = currentUser;
                 CurrentUserLogin = currentUser.Login;
-                // Проверяем роль по ID (СуперАдмин = Id 1)
-                IsAdminMenuVisible = currentUser.RoleId == 1;
-                
-                // Записать время входа
+
+                // СуперАдмин(1), Админ(2), Конфигуратор(5) — видят меню конфигурации
+                IsAdminMenuVisible = currentUser.RoleId == 1 || currentUser.RoleId == 2 || currentUser.RoleId == 5;
+
                 currentUser.LoginTime = DateTime.Now;
                 LoggingService.Instance?.LogLogin(currentUser.Login);
             }
-            
-            // Initialize with empty dashboard view
-            NavigateToEmptyDashboard();
+
+            _runtimeState.PropertyChanged += (_, __) => UpdateStatusBar();
+            UpdateStatusBar();
+
+            // Стартовая страница — Панель
+            NavigateToPanel();
+        }
+
+        private void UpdateStatusBar()
+        {
+            StatusShift = _runtimeState.Shift.StatusTextRu;
+            StatusPosts = $"Посты: {_runtimeState.OnlinePostsCount}/{_runtimeState.TotalPostsCount} онлайн";
+            StatusAlerts = $"Тревоги: {_runtimeState.ActiveAlertsCount}";
         }
 
         [RelayCommand]
-        private void NavigateToEmptyDashboard()
+        private void NavigateToPanel()
         {
-            CurrentView = new EmptyDashboardView();
-            WindowTitle = "MultiFuelMaster - Панель управления";
-        }
-
-        [RelayCommand]
-        private void NavigateToDashboard()
-        {
-            var viewModel = new DashboardViewModel(_databaseService);
+            var viewModel = new DashboardViewModel(_databaseService, _runtimeState);
             CurrentView = new DashboardView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Панель управления";
-        }
-
-        [RelayCommand]
-        private void NavigateToStations()
-        {
-            var viewModel = new StationsViewModel(_databaseService);
-            CurrentView = new StationsView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Станции";
-        }
-
-        [RelayCommand]
-        private void NavigateToStationSettings()
-        {
-            var viewModel = new StationSettingsViewModel(_stationSettingsService, NavigateToEmptyDashboard);
-            CurrentView = new StationSettingsView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Параметры АЗС";
-        }
-
-        [RelayCommand]
-        private void NavigateToFuelTypes()
-        {
-            var viewModel = new FuelTypesViewModel(_fuelTypeService, NavigateToEmptyDashboard);
-            CurrentView = new FuelTypesView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Виды топлива";
-        }
-
-        [RelayCommand]
-        private void NavigateToTanks()
-        {
-            var viewModel = new TanksViewModel(_tankService, NavigateToEmptyDashboard);
-            CurrentView = new TanksView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Ёмкости";
-        }
-
-        [RelayCommand]
-        private void NavigateToUsers()
-        {
-            var viewModel = new UsersViewModel(_userService, NavigateToEmptyDashboard);
-            CurrentView = new UsersView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Пользователи";
+            WindowTitle = "MultiFuelMaster — Панель";
         }
 
         [RelayCommand]
@@ -121,7 +104,15 @@ namespace MultiFuelMaster.ViewModels
         {
             var viewModel = new TransactionsViewModel(_databaseService);
             CurrentView = new TransactionsView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Транзакции";
+            WindowTitle = "MultiFuelMaster — Транзакции";
+        }
+
+        [RelayCommand]
+        private void NavigateToShift()
+        {
+            var viewModel = new ShiftViewModel(_runtimeState, CurrentUserLogin);
+            CurrentView = new ShiftView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Смена";
         }
 
         [RelayCommand]
@@ -129,27 +120,99 @@ namespace MultiFuelMaster.ViewModels
         {
             var viewModel = new ReportsViewModel(_databaseService);
             CurrentView = new ReportsView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Отчеты";
+            WindowTitle = "MultiFuelMaster — Отчёты";
         }
 
         [RelayCommand]
-        private void NavigateToSettings()
+        private void NavigateToDiagnostics()
         {
-            var viewModel = new SettingsViewModel(NavigateToEmptyDashboard);
-            CurrentView = new SettingsView { DataContext = viewModel };
-            WindowTitle = "MultiFuelMaster - Настройки";
+            var viewModel = new DiagnosticsViewModel(_runtimeState);
+            CurrentView = new DiagnosticsView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Диагностика";
         }
-        
+
+        [RelayCommand]
+        private void NavigateToService()
+        {
+            var viewModel = new SettingsViewModel(NavigateToPanel);
+            CurrentView = new SettingsView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Сервис";
+        }
+
+        // Конфигурация (левое меню)
+        [RelayCommand]
+        private void NavigateToStationSettings()
+        {
+            var viewModel = new StationSettingsViewModel(_stationSettingsService, NavigateToPanel);
+            CurrentView = new StationSettingsView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Параметры АЗС";
+        }
+
+        [RelayCommand]
+        private void NavigateToUsers()
+        {
+            var viewModel = new UsersViewModel(_userService, NavigateToPanel);
+            CurrentView = new UsersView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Пользователи и роли";
+        }
+
+        [RelayCommand]
+        private void NavigateToFuelTypes()
+        {
+            var viewModel = new FuelTypesViewModel(_fuelTypeService, NavigateToPanel);
+            CurrentView = new FuelTypesView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Топливо";
+        }
+
+        [RelayCommand]
+        private void NavigateToTanks()
+        {
+            var viewModel = new TanksViewModel(_tankService, NavigateToPanel);
+            CurrentView = new TanksView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Резервуары";
+        }
+
+        [RelayCommand]
+        private void NavigateToPostsAndConnection()
+        {
+            var viewModel = new PostsAndConnectionViewModel(NavigateToPanel);
+            CurrentView = new PostsAndConnectionView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Посты и связь";
+        }
+
+        [RelayCommand]
+        private void NavigateToChannels()
+        {
+            var viewModel = new ChannelsViewModel(NavigateToPanel);
+            CurrentView = new ChannelsView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Каналы и пистолеты";
+        }
+
+        [RelayCommand]
+        private void NavigateToSalesParameters()
+        {
+            var viewModel = new SalesParametersViewModel(NavigateToPanel);
+            CurrentView = new SalesParametersView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Параметры продаж";
+        }
+
+        [RelayCommand]
+        private void NavigateToSystem()
+        {
+            var viewModel = new SettingsViewModel(NavigateToPanel);
+            CurrentView = new SettingsView { DataContext = viewModel };
+            WindowTitle = "MultiFuelMaster — Система";
+        }
+
         [RelayCommand]
         private void Exit()
         {
-            // Записать выход в лог
             if (_currentUser != null)
             {
                 _currentUser.LogoutTime = DateTime.Now;
                 LoggingService.Instance?.LogLogout(_currentUser.Login);
             }
-            
+
             _onExit?.Invoke();
         }
     }

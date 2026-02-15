@@ -57,7 +57,7 @@
                 
                 <UniformGrid Grid.Row="1" Rows="2" Columns="2">
                     <!-- Total Transactions -->
-                    <materialDesign:Card Margin="0,0,8,8" UniformCornerRadius="10">
+                    <materialDesign:Card Margin="0,0,8,8">
                         <Grid Margin="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -79,7 +79,7 @@
                     </materialDesign:Card>
                     
                     <!-- Total Volume -->
-                    <materialDesign:Card Margin="8,0,0,8" UniformCornerRadius="10">
+                    <materialDesign:Card Margin="8,0,0,8">
                         <Grid Margin="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -101,7 +101,7 @@
                     </materialDesign:Card>
                     
                     <!-- Total Revenue -->
-                    <materialDesign:Card Margin="0,8,8,0" UniformCornerRadius="10">
+                    <materialDesign:Card Margin="0,8,8,0">
                         <Grid Margin="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -123,7 +123,7 @@
                     </materialDesign:Card>
                     
                     <!-- Average Transaction -->
-                    <materialDesign:Card Margin="8,8,0,0" UniformCornerRadius="10">
+                    <materialDesign:Card Margin="8,8,0,0">
                         <Grid Margin="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

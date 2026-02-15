@@ -1,147 +1,273 @@
 <UserControl x:Class="MultiFuelMaster.Views.DashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    
-    <Grid>
+             xmlns:runtime="clr-namespace:MultiFuelMaster.Models.Runtime"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1100"
+             Background="{DynamicResource MaterialDesignPaper}">
+
+    <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <!-- Header -->
-        <TextBlock Grid.Row="0" 
-                   Text="Панель управления" 
-                   Style="{StaticResource MaterialDesignHeadline4TextBlock}"
-                   Margin="0,0,0,20"/>
-        
-        <!-- Summary Cards -->
-        <UniformGrid Grid.Row="1" Rows="2" Columns="2" Margin="0,0,0,20">
-            <!-- Total Stations Card -->
-            <materialDesign:Card Margin="5" UniformCornerRadius="10">
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Left">
+                <TextBlock Text="Панель" Style="{StaticResource MaterialDesignHeadline4TextBlock}" />
+                <TextBlock Text="Оперативная информация по постам, резервуарам и тревогам"
+                           Opacity="0.72" Margin="0,4,0,0"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.1*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Posts -->
+            <materialDesign:Card Grid.Column="0" Padding="16" Margin="0,0,12,0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <materialDesign:PackIcon Grid.Row="0" 
-                                           Kind="MapMarkerMultiple" 
-                                           Width="48" Height="48" 
-                                           HorizontalAlignment="Right" 
-                                           Margin="10"/>
-                    <StackPanel Grid.Row="1" Margin="16">
-                        <TextBlock Text="Станции" 
-                                 Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                 Opacity="0.68"/>
-                        <TextBlock Text="{Binding TotalStations}" 
-                                 Style="{StaticResource MaterialDesignHeadline3TextBlock}"
-                                 FontWeight="Bold"/>
-                    </StackPanel>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="Посты 1–8" Style="{StaticResource MaterialDesignHeadline6TextBlock}" />
+                        <TextBlock DockPanel.Dock="Right" Text="Нажмите на пост для деталей" Opacity="0.68" VerticalAlignment="Center"/>
+                    </DockPanel>
+
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Posts}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="2" Columns="4"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type runtime:PostRuntimeState}">
+                                <Button Command="{Binding DataContext.SelectPostCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}"
+                                        Margin="6"
+                                        Padding="0"
+                                        Style="{StaticResource MaterialDesignFlatButton}">
+                                    <materialDesign:Card Padding="12">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <DockPanel Grid.Row="0">
+                                                <TextBlock Text="{Binding DisplayName}" FontWeight="Bold"/>
+                                                <TextBlock DockPanel.Dock="Right" Text="{Binding StatusTextRu}" Opacity="0.72"/>
+                                            </DockPanel>
+
+                                            <TextBlock Grid.Row="1" Text="{Binding FuelName}" Opacity="0.72" Margin="0,6,0,0"/>
+
+                                            <Grid Grid.Row="2" Margin="0,10,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Объем" Opacity="0.68" FontSize="12"/>
+                                                    <TextBlock Text="{Binding VolumeL, StringFormat={}{0:0.00} л}" FontWeight="SemiBold"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="Сумма" Opacity="0.68" FontSize="12"/>
+                                                    <TextBlock Text="{Binding Amount, StringFormat={}{0:N0}}" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <TextBlock Grid.Row="3" Text="{Binding LastUpdate, StringFormat={}{0:HH:mm:ss}}"
+                                                       Opacity="0.55" HorizontalAlignment="Right"/>
+
+                                        </Grid>
+
+                                        <materialDesign:Card.Style>
+                                            <Style TargetType="materialDesign:Card">
+                                                <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueLightBrush}" />
+                                                <Setter Property="BorderThickness" Value="0" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Connection}" Value="{x:Static runtime:PostConnectionState.Offline}">
+                                                        <Setter Property="Opacity" Value="0.6"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Operation}" Value="{x:Static runtime:PostOperationState.Fuelling}">
+                                                        <Setter Property="BorderThickness" Value="2"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Operation}" Value="{x:Static runtime:PostOperationState.Paused}">
+                                                        <Setter Property="BorderThickness" Value="2"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </materialDesign:Card.Style>
+                                    </materialDesign:Card>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </Grid>
             </materialDesign:Card>
-            
-            <!-- Total Dispensers Card -->
-            <materialDesign:Card Margin="5" UniformCornerRadius="10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <materialDesign:PackIcon Grid.Row="0" 
-                                           Kind="GasStation" 
-                                           Width="48" Height="48" 
-                                           HorizontalAlignment="Right" 
-                                           Margin="10"/>
-                    <StackPanel Grid.Row="1" Margin="16">
-                        <TextBlock Text="Раздатчики" 
-                                 Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                 Opacity="0.68"/>
-                        <TextBlock Text="{Binding TotalDispensers}" 
-                                 Style="{StaticResource MaterialDesignHeadline3TextBlock}"
-                                 FontWeight="Bold"/>
-                    </StackPanel>
-                </Grid>
-            </materialDesign:Card>
-            
-            <!-- Today's Revenue Card -->
-            <materialDesign:Card Margin="5" UniformCornerRadius="10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <materialDesign:PackIcon Grid.Row="0" 
-                                           Kind="CurrencyRub" 
-                                           Width="48" Height="48" 
-                                           HorizontalAlignment="Right" 
-                                           Margin="10"/>
-                    <StackPanel Grid.Row="1" Margin="16">
-                        <TextBlock Text="Выручка сегодня" 
-                                 Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                 Opacity="0.68"/>
-                        <TextBlock Text="{Binding TodayRevenue, StringFormat='{}{0:N2} руб.'}" 
-                                 Style="{StaticResource MaterialDesignHeadline3TextBlock}"
-                                 FontWeight="Bold"/>
-                    </StackPanel>
-                </Grid>
-            </materialDesign:Card>
-            
-            <!-- Today's Transactions Card -->
-            <materialDesign:Card Margin="5" UniformCornerRadius="10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <materialDesign:PackIcon Grid.Row="0" 
-                                           Kind="History" 
-                                           Width="48" Height="48" 
-                                           HorizontalAlignment="Right" 
-                                           Margin="10"/>
-                    <StackPanel Grid.Row="1" Margin="16">
-                        <TextBlock Text="Транзакции сегодня" 
-                                 Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                 Opacity="0.68"/>
-                        <TextBlock Text="{Binding TodayTransactions}" 
-                                 Style="{StaticResource MaterialDesignHeadline3TextBlock}"
-                                 FontWeight="Bold"/>
-                    </StackPanel>
-                </Grid>
-            </materialDesign:Card>
-        </UniformGrid>
-        
-        <!-- Recent Activity -->
-        <materialDesign:Card Grid.Row="1" Margin="0,20,0,0">
-            <Grid Margin="16">
+
+            <!-- Right column: details + tanks + alerts -->
+            <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
-                <TextBlock Grid.Row="0" 
-                         Text="Станции" 
-                         Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                         Margin="0,0,0,16"/>
-                
-                <DataGrid Grid.Row="1"
-                         ItemsSource="{Binding Stations}"
-                         AutoGenerateColumns="False"
-                         IsReadOnly="True"
-                         SelectionMode="Single"
-                         GridLinesVisibility="Horizontal">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                        <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*"/>
-                        <DataGridTextColumn Header="Телефон" Binding="{Binding PhoneNumber}" Width="120"/>
-                        <DataGridTextColumn Header="Активна" Binding="{Binding IsActive}" Width="80"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+
+                <!-- Selected Post -->
+                <materialDesign:Card Grid.Row="0" Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Выбранный пост" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,12"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Пост:" Opacity="0.7"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedPost.DisplayName}"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Статус:" Opacity="0.7"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedPost.StatusTextRu}"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Топливо:" Opacity="0.7"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedPost.FuelName}"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Объем / сумма:" Opacity="0.7"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1">
+                                <Run Text="{Binding SelectedPost.VolumeL, StringFormat={}{0:0.00} л}"/>
+                                <Run Text="  •  "/>
+                                <Run Text="{Binding SelectedPost.Amount, StringFormat={}{0:N0}}"/>
+                            </TextBlock>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Последнее:" Opacity="0.7"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedPost.LastUpdate, StringFormat={}{0:dd.MM.yyyy HH:mm:ss}}"/>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Tanks -->
+                <materialDesign:Card Grid.Row="1" Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Резервуары" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,12"/>
+                        <ItemsControl ItemsSource="{Binding Tanks}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type runtime:TankRuntimeState}">
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="90"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0">
+                                            <Run Text="{Binding DisplayName}"/>
+                                            <Run Text=" — "/>
+                                            <Run Text="{Binding FuelName}"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LevelText}" HorizontalAlignment="Right"/>
+
+                                        <ProgressBar Grid.Row="1" Grid.ColumnSpan="2"
+                                                     Height="10" Margin="0,6,0,0"
+                                                     Value="{Binding LevelPercent}" Maximum="100"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Alerts -->
+                <materialDesign:Card Grid.Row="2" Padding="16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+                            <TextBlock Text="События и тревоги" Style="{StaticResource MaterialDesignHeadline6TextBlock}" />
+                            <Button DockPanel.Dock="Right"
+                                    Command="{Binding ClearAlertsCommand}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    Padding="12,6"
+                                    ToolTip="Очистить информационные сообщения">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Broom" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Очистить"/>
+                                </StackPanel>
+                            </Button>
+                        </DockPanel>
+
+                        <ListBox Grid.Row="1" ItemsSource="{Binding Alerts}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type runtime:AlertRuntimeItem}">
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <materialDesign:PackIcon Grid.Column="0" Margin="0,2,10,0" Kind="InformationOutline" Opacity="0.78">
+                                            <materialDesign:PackIcon.Style>
+                                                <Style TargetType="materialDesign:PackIcon">
+                                                    <Setter Property="Kind" Value="InformationOutline"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Severity}" Value="{x:Static runtime:AlertSeverity.Warning}">
+                                                            <Setter Property="Kind" Value="Alert"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Severity}" Value="{x:Static runtime:AlertSeverity.Critical}">
+                                                            <Setter Property="Kind" Value="AlertOctagon"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </materialDesign:PackIcon.Style>
+                                        </materialDesign:PackIcon>
+
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock>
+                                                <Run Text="{Binding Title}" FontWeight="SemiBold"/>
+                                                <Run Text=" — "/>
+                                                <Run Text="{Binding Message}"/>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm:ss}}" Opacity="0.55" FontSize="12"/>
+                                        </StackPanel>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </materialDesign:Card>
             </Grid>
-        </materialDesign:Card>
+        </Grid>
     </Grid>
 </UserControl>

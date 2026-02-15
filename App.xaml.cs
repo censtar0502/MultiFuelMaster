@@ -7,6 +7,7 @@ using MultiFuelMaster.Views;
 using MultiFuelMaster.Models;
 using MultiFuelMaster.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace MultiFuelMaster
 {
@@ -29,20 +30,19 @@ namespace MultiFuelMaster
                 ConfigureServices(services);
                 _serviceProvider = services.BuildServiceProvider();
 
-                var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Database.EnsureCreated();
+                var dbFactory = _serviceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
+                await using (var dbContext = await dbFactory.CreateDbContextAsync())
+                {
+                    await dbContext.Database.EnsureCreatedAsync();
+                }
 
                 var authService = _serviceProvider.GetRequiredService<AuthService>();
                 bool hasAdmin = await authService.HasAdminUserAsync();
 
                 if (!hasAdmin)
                 {
-                    var setupWindow = new SetupWindow(authService);
-                    if (setupWindow.ShowDialog() != true)
-                    {
-                        Shutdown();
-                        return;
-                    }
+                    // Автосоздание супер-админа при первом запуске (без дополнительных окон)
+                    await authService.CreateSuperAdminAsync("admin", "admin", "Administrator");
                 }
 
                 var loginWindow = new LoginWindow(authService);
@@ -74,12 +74,15 @@ namespace MultiFuelMaster
                 var fuelTypeService = _serviceProvider.GetRequiredService<FuelTypeService>();
                 var tankService = _serviceProvider.GetRequiredService<TankService>();
                 var userService = _serviceProvider.GetRequiredService<UserService>();
+                var runtimeState = _serviceProvider.GetRequiredService<RuntimeStateService>();
                 
-                // Сохранить время входа в базу
+                // Сохранить время входа в базу (без блокировки UI)
                 if (_currentUser != null)
                 {
                     _currentUser.LoginTime = DateTime.Now;
-                    var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
+
+                    var dbFactory = _serviceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
+                    using var dbContext = dbFactory.CreateDbContext();
                     var userToUpdate = dbContext.Users.Find(_currentUser.Id);
                     if (userToUpdate != null)
                     {
@@ -94,6 +97,7 @@ namespace MultiFuelMaster
                     fuelTypeService, 
                     tankService,
                     userService,
+                    runtimeState,
                     _currentUser,
                     () => {
                         // Сохранить время выхода перед закрытием
@@ -122,7 +126,8 @@ namespace MultiFuelMaster
             {
                 if (_currentUser != null && _serviceProvider != null)
                 {
-                    var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
+                    var dbFactory = _serviceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
+                    using var dbContext = dbFactory.CreateDbContext();
                     var userToUpdate = dbContext.Users.Find(_currentUser.Id);
                     if (userToUpdate != null)
                     {
@@ -150,6 +155,7 @@ namespace MultiFuelMaster
             services.AddTransient<FuelTypeService>();
             services.AddTransient<TankService>();
             services.AddTransient<UserService>();
+            services.AddSingleton<RuntimeStateService>();
         }
 
         protected override void OnExit(ExitEventArgs e)

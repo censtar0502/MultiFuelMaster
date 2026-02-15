@@ -32,3 +32,10 @@ TestResults/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Local docs / audits
+Docs/
+
+# Local database and logs
+*.db
+logs/
