@@ -237,6 +237,22 @@ namespace MultiFuelMaster.ViewModels
         }
 
         [RelayCommand]
+        private void EditRole()
+        {
+            if (SelectedRole == null) return;
+
+            EditingRole = new UserRole
+            {
+                Id = SelectedRole.Id,
+                Name = SelectedRole.Name,
+                Description = SelectedRole.Description,
+                IsActive = SelectedRole.IsActive
+            };
+            IsAddingNewRole = false;
+            IsEditingRole = true;
+        }
+
+        [RelayCommand]
         private async Task DeleteRole()
         {
             if (SelectedRole == null) return;
