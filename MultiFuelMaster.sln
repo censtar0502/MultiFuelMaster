@@ -1,18 +1,37 @@
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.0.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiFuelMaster", "MultiFuelMaster.csproj", "{304683C1-5642-44B8-9BA7-5561E723B3D9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiFuelMaster.Core", "MultiFuelMaster.Core\MultiFuelMaster.Core.vcxproj", "{FD3011B1-9459-4970-97FE-ADB34738BCD0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiFuelMaster.Interop", "MultiFuelMaster.Interop\MultiFuelMaster.Interop.vcxproj", "{91F461D4-7E14-D0C2-BEFC-D8BD9E67B713}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiFuelMaster.UI", "MultiFuelMaster.UI\MultiFuelMaster.UI.csproj", "{B2C3D4E5-6789-01EF-ABCD-123456789ABC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{304683C1-5642-44B8-9BA7-5561E723B3D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{304683C1-5642-44B8-9BA7-5561E723B3D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{304683C1-5642-44B8-9BA7-5561E723B3D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{304683C1-5642-44B8-9BA7-5561E723B3D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD3011B1-9459-4970-97FE-ADB34738BCD0}.Debug|x64.ActiveCfg = Debug|x64
+		{FD3011B1-9459-4970-97FE-ADB34738BCD0}.Debug|x64.Build.0 = Debug|x64
+		{FD3011B1-9459-4970-97FE-ADB34738BCD0}.Release|x64.ActiveCfg = Release|x64
+		{FD3011B1-9459-4970-97FE-ADB34738BCD0}.Release|x64.Build.0 = Release|x64
+		{91F461D4-7E14-D0C2-BEFC-D8BD9E67B713}.Debug|x64.ActiveCfg = Debug|x64
+		{91F461D4-7E14-D0C2-BEFC-D8BD9E67B713}.Debug|x64.Build.0 = Debug|x64
+		{91F461D4-7E14-D0C2-BEFC-D8BD9E67B713}.Release|x64.ActiveCfg = Release|x64
+		{91F461D4-7E14-D0C2-BEFC-D8BD9E67B713}.Release|x64.Build.0 = Release|x64
+		{B2C3D4E5-6789-01EF-ABCD-123456789ABC}.Debug|x64.ActiveCfg = Debug|x64
+		{B2C3D4E5-6789-01EF-ABCD-123456789ABC}.Debug|x64.Build.0 = Debug|x64
+		{B2C3D4E5-6789-01EF-ABCD-123456789ABC}.Release|x64.ActiveCfg = Release|x64
+		{B2C3D4E5-6789-01EF-ABCD-123456789ABC}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AABB1122-3344-5566-7788-99AABBCCDDEE}
 	EndGlobalSection
 EndGlobal
