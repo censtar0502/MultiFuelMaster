@@ -1,7 +1,7 @@
 // ============================================================
 // Logger.cpp — Logging implementation
 // ============================================================
-
+#include <iomanip>
 #include "pch.h"
 #include "Logger.h"
 #include <cstdarg>
@@ -358,7 +358,7 @@ std::string Logger::GetTimestamp()
 
     std::ostringstream oss;
     oss << std::put_time(&tmBuf, "%Y-%m-%d %H:%M:%S");
-    oss << "." <(3) << std::setw< std::setfill('0') << ms.count();
+    oss << "." << std::setfill('0') << std::setw(3) << ms.count();
     
     return oss.str();
 }
