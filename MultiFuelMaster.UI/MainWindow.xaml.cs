@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Input;
+using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 
 namespace MultiFuelMaster.UI
@@ -17,54 +17,62 @@ namespace MultiFuelMaster.UI
             InitializeComponent();
             _maxPanels = maxPanels;
 
-            PostCountLabel.Text = $"  [{maxPanels} {PanelWord(maxPanels)}]";
+            PostCountLabel.Text = $"[{maxPanels} {PanelWord(maxPanels)}]";
 
-            // Создаём PostControl для каждого поста
+            // Рассчитываем сетку: кол-во колонок
+            int cols = CalculateColumns(maxPanels);
+            PostsGrid.Columns = cols;
+
+            // Создаём панели постов
             for (int i = 1; i <= maxPanels; i++)
             {
                 var post = new PostControl(i);
                 _posts.Add(post);
-                PostsPanel.Children.Add(post);
+                PostsGrid.Children.Add(post);
             }
 
-            // Тикающие часы в статусной строке
+            // Часы в статусной строке
             _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _clockTimer.Tick += (s, e) => ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
             _clockTimer.Start();
 
             Closing += MainWindow_Closing;
 
-            // Подбираем размер окна под количество постов
-            AdjustWindowSize(maxPanels);
+            // Размер окна под количество постов
+            AdjustWindowSize(maxPanels, cols);
 
             Title = $"MultiFuelMaster — {maxPanels} {PanelWord(maxPanels)}";
+            ActiveCountLabel.Text = $"0 / {maxPanels} активно";
         }
 
-        private void AdjustWindowSize(int count)
+        private static int CalculateColumns(int panelCount) => panelCount switch
         {
-            const int panelW = 392;   // ширина PostControl (380 + отступы)
-            const int maxPerRow = 5;
+            1 => 1,
+            2 => 2,
+            3 => 3,
+            4 => 2,
+            5 or 6 => 3,
+            7 or 8 => 4,
+            _ => 5
+        };
 
-            int cols = Math.Min(count, maxPerRow);
-            int width  = cols * panelW + 24;
-            int height = 720;
+        private void AdjustWindowSize(int count, int cols)
+        {
+            int rows = (int)Math.Ceiling((double)count / cols);
 
-            Width  = Math.Max(width, 420);
-            Height = height;
+            // Компактные панели: ~300px ширина, ~340px высота
+            int width  = cols * 300 + 24;
+            int height = rows * 340 + 80;
+
+            Width  = Math.Max(width, 580);
+            Height = Math.Min(Math.Max(height, 480), 900);
+
+            // При 1 посте — окно уже, но не слишком
+            if (count == 1) { Width = 400; Height = 500; }
         }
 
         private static string PanelWord(int n) => n == 1 ? "пост" :
                                                    n <= 4 ? "поста" : "постов";
-
-        // ===== ЗАГОЛОВОК — ПЕРЕТАСКИВАНИЕ =====
-
-        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 2)
-                ToggleMaximize();
-            else
-                DragMove();
-        }
 
         // ===== КНОПКИ ОКНА =====
 
@@ -72,17 +80,12 @@ namespace MultiFuelMaster.UI
             => WindowState = WindowState.Minimized;
 
         private void BtnMaximize_Click(object sender, RoutedEventArgs e)
-            => ToggleMaximize();
+            => WindowState = WindowState == WindowState.Maximized
+                ? WindowState.Normal
+                : WindowState.Maximized;
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
             => Close();
-
-        private void ToggleMaximize()
-        {
-            WindowState = WindowState == WindowState.Maximized
-                ? WindowState.Normal
-                : WindowState.Maximized;
-        }
 
         // ===== МЕНЮ =====
 

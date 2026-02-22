@@ -1,5 +1,5 @@
 // ============================================================
-// PostControl.xaml.cs — Логика управления одним постом ТРК
+// PostControl.xaml.cs — Компактная панель управления постом ТРК
 // ============================================================
 using System;
 using System.Globalization;
@@ -47,21 +47,24 @@ namespace MultiFuelMaster.UI
         private string _lastStatusKey   = "";
         private ManagedDispenserState _lastPollState = ManagedDispenserState.Error;
 
-        // Путь к лог-файлу
-        private readonly string _uiLogPath;
-        private static readonly object _logLock = new object();
+        // Цвета акцентов для разных постов
+        private static readonly string[] AccentColors = {
+            "#00E676", "#42A5F5", "#FFC107", "#FF5252", "#AB47BC",
+            "#26C6DA", "#FF7043", "#66BB6A", "#EC407A", "#7E57C2"
+        };
 
         public PostControl(int postNumber)
         {
             InitializeComponent();
             _postNumber = postNumber;
 
-            _uiLogPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "MultiFuelMaster", $"ui_post{postNumber}.log");
-
             PostNumberText.Text = postNumber.ToString();
-            PostTitleText.Text  = $"Пост №{postNumber}";
+            PostTitleText.Text  = $"Пост {postNumber}";
+
+            // Цветовой акцент для каждого поста
+            string accent = AccentColors[(postNumber - 1) % AccentColors.Length];
+            var accentBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(accent));
+            AccentStripe.Background = accentBrush;
 
             _bridge    = new DispenserBridge();
             _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
@@ -112,7 +115,6 @@ namespace MultiFuelMaster.UI
                 ComPortInput.Text = _portName;
             FuelTypeDisplay.Text = _fuelType;
             PriceDisplay.Text    = ((int)_pricePerLiter).ToString(CultureInfo.InvariantCulture);
-            SubtitleText.Text    = $"{_fuelType} — не подключено";
         }
 
         private class PostSettings
@@ -162,11 +164,10 @@ namespace MultiFuelMaster.UI
                 _pollTickCount    = 0;
 
                 SetStatusCached("connected");
-                BtnConnect.Content  = "Отключить";
+                BtnConnect.Content  = "Откл.";
                 BtnStart.IsEnabled  = false;
                 BtnStop.IsEnabled   = false;
                 SetInputsEnabled(true);
-                SubtitleText.Text   = $"{_portName} — {_fuelType}";
                 _pollTimer.Start();
             }
             catch { SetStatusCached("error"); }
@@ -183,7 +184,6 @@ namespace MultiFuelMaster.UI
                 BtnStart.IsEnabled  = false;
                 BtnStop.IsEnabled   = false;
                 SetStatusCached("nolink");
-                SubtitleText.Text   = $"{_fuelType} — не подключено";
             }
             finally { _isDisconnecting = false; }
         }
@@ -246,7 +246,6 @@ namespace MultiFuelMaster.UI
                     SetStatusCached("error");
                 return;
             }
-            // Без пресета — просто вызов
             SetStatusCached("calling");
         }
 
@@ -314,7 +313,6 @@ namespace MultiFuelMaster.UI
                 SetStatusCached("nolink");
                 BtnStart.IsEnabled = false; BtnStop.IsEnabled = false;
                 SetInputsEnabled(true);
-                SubtitleText.Text = $"{_fuelType} — нет связи";
                 return;
             }
 
@@ -325,9 +323,6 @@ namespace MultiFuelMaster.UI
                 double liters = _bridge.CurrentLiters;
                 double money  = _bridge.CurrentMoney;
                 double total  = _bridge.TotalCounter;
-
-                if (SubtitleText.Text.Contains("нет связи"))
-                    SubtitleText.Text = $"{_portName} — {_fuelType}";
 
                 if (!_transactionShown)
                 {
@@ -411,10 +406,10 @@ namespace MultiFuelMaster.UI
                     text = "Готова"; dotBrush = Brushes.LimeGreen;
                     bgHex = "#1A3A1A"; borderHex = "#2D5A2D"; break;
                 case "connected":
-                    text = "Подключена"; dotBrush = Brushes.LimeGreen;
+                    text = "Подкл."; dotBrush = Brushes.LimeGreen;
                     bgHex = "#1A3A1A"; borderHex = "#2D5A2D"; break;
                 case "nozzle_up":
-                    text = "Пистолет поднят"; dotBrush = Brushes.Orange;
+                    text = "Пистолет"; dotBrush = Brushes.Orange;
                     bgHex = "#3A351A"; borderHex = "#5A4D2D"; break;
                 case "calling":
                     text = "Вызов"; dotBrush = Brushes.Orange;
@@ -426,7 +421,7 @@ namespace MultiFuelMaster.UI
                     text = "Отпуск"; dotBrush = Brushes.LimeGreen;
                     bgHex = "#1A3A1A"; borderHex = "#2D5A2D"; break;
                 case "done":
-                    text = "Завершено"; dotBrush = Brushes.CornflowerBlue;
+                    text = "Готово"; dotBrush = Brushes.CornflowerBlue;
                     bgHex = "#1A2A3A"; borderHex = "#2D4D5A"; break;
                 case "nolink":
                     text = "Нет связи"; dotBrush = Brushes.Tomato;
