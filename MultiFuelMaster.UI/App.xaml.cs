@@ -33,7 +33,8 @@ namespace MultiFuelMaster.UI
                     "MultiFuelMaster", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
-            int maxPanels = Math.Max(1, status.MaxPanels);
+            // TODO: убрать хардкод после тестирования
+            int maxPanels = 3; // Math.Max(1, status.MaxPanels);
 
             // Создаём и показываем главное MDI-окно
             var mainWindow = new MainWindow(maxPanels);
