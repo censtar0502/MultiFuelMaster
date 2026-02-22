@@ -69,6 +69,11 @@
                 <!-- Меню (по центру) -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                             HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button Content="⚙ Настройки" Click="BtnGlobalSettings_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"
+                            Background="Transparent" Foreground="{StaticResource TextSecondary}"
+                            FontSize="11" Padding="10,4" Margin="4,0"
+                            BorderThickness="0" Cursor="Hand"/>
                     <Button Content="Лицензия" Click="BtnLicense_Click"
                             WindowChrome.IsHitTestVisibleInChrome="True"
                             Background="Transparent" Foreground="{StaticResource TextSecondary}"

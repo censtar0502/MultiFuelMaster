@@ -87,6 +87,18 @@ namespace MultiFuelMaster.UI
 
         // ===== МЕНЮ =====
 
+        private void BtnGlobalSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new GlobalSettingsWindow(_panelCount);
+            win.Owner = this;
+            if (win.ShowDialog() == true)
+            {
+                MessageBox.Show(
+                    $"Количество постов изменено на {win.PanelCount}.\n\nИзменение вступит в силу при следующем запуске.",
+                    "MultiFuelMaster", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
         private void BtnLicense_Click(object sender, RoutedEventArgs e)
         {
             var lm = new LicenseManager();
