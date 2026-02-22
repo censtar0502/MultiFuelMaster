@@ -53,11 +53,18 @@
                                    FontFamily="Consolas"/>
                     </Border>
 
-                    <!-- Название -->
-                    <TextBlock Grid.Column="1" x:Name="PostTitleText" Text="Пост 1"
-                               FontSize="13" FontWeight="Bold"
-                               Foreground="{StaticResource TextPrimary}"
-                               VerticalAlignment="Center"/>
+                    <!-- Название + бейдж ДЕМО -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="PostTitleText" Text="Пост 1"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimary}"/>
+                        <Border x:Name="DemoBadge" CornerRadius="4" Padding="4,1"
+                                Background="#3D2A00" Margin="6,0,0,0"
+                                Visibility="Collapsed">
+                            <TextBlock Text="ДЕМО 10л" FontSize="8" FontWeight="Bold"
+                                       Foreground="#FFC107"/>
+                        </Border>
+                    </StackPanel>
 
                     <!-- Статус (компактный) -->
                     <Border x:Name="StatusBorder" Grid.Column="2"

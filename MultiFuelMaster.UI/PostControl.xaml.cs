@@ -16,7 +16,10 @@ namespace MultiFuelMaster.UI
 {
     public partial class PostControl : UserControl
     {
-        private readonly int _postNumber;
+        private readonly int  _postNumber;
+        private readonly bool _isLicensed;
+        private const double  DemoLimitLiters = 10.0;
+
         private DispenserBridge _bridge;
         private DispatcherTimer _pollTimer;
         private DateTime _connectTime = DateTime.MinValue;
@@ -25,6 +28,7 @@ namespace MultiFuelMaster.UI
         private bool _isDisconnecting = false;
         private bool _isUpdatingPreset = false;
         private bool _transactionShown = false;
+        private bool _demoStopSent     = false;
         private int  _pollTickCount    = 0;
 
         private string _portName     = "";
@@ -53,10 +57,11 @@ namespace MultiFuelMaster.UI
             "#26C6DA", "#FF7043", "#66BB6A", "#EC407A", "#7E57C2"
         };
 
-        public PostControl(int postNumber)
+        public PostControl(int postNumber, bool isLicensed = true)
         {
             InitializeComponent();
             _postNumber = postNumber;
+            _isLicensed = isLicensed;
 
             PostNumberText.Text = postNumber.ToString();
             PostTitleText.Text  = $"Пост {postNumber}";
@@ -65,6 +70,13 @@ namespace MultiFuelMaster.UI
             string accent = AccentColors[(postNumber - 1) % AccentColors.Length];
             var accentBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(accent));
             AccentStripe.Background = accentBrush;
+
+            // ДЕМО-режим: показать бейдж + оранжевая полоска
+            if (!_isLicensed)
+            {
+                DemoBadge.Visibility = Visibility.Visible;
+                AccentStripe.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC107"));
+            }
 
             _bridge    = new DispenserBridge();
             _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
@@ -226,6 +238,7 @@ namespace MultiFuelMaster.UI
         {
             if (!_bridge.IsConnected) return;
             _transactionShown = false;
+            _demoStopSent     = false;
 
             string litersText = PresetLitersInput.Text.Trim().Replace(',', '.');
             string moneyText  = PresetCostInput.Text.Trim().Replace(',', '.');
@@ -233,7 +246,12 @@ namespace MultiFuelMaster.UI
             if (!string.IsNullOrEmpty(litersText))
             {
                 if (double.TryParse(litersText, NumberStyles.Any, CultureInfo.InvariantCulture, out double liters) && liters > 0)
+                {
+                    // ДЕМО-ограничение: макс 10 литров
+                    if (!_isLicensed && liters > DemoLimitLiters)
+                        liters = DemoLimitLiters;
                     _bridge.QueueVolumePreset(liters, (int)_pricePerLiter);
+                }
                 else
                     SetStatusCached("error");
                 return;
@@ -241,9 +259,24 @@ namespace MultiFuelMaster.UI
             if (!string.IsNullOrEmpty(moneyText))
             {
                 if (double.TryParse(moneyText, NumberStyles.Any, CultureInfo.InvariantCulture, out double money) && money > 0)
+                {
+                    // ДЕМО-ограничение: макс на сумму 10 литров
+                    if (!_isLicensed)
+                    {
+                        double maxMoney = DemoLimitLiters * _pricePerLiter;
+                        if (money > maxMoney) money = maxMoney;
+                    }
                     _bridge.QueueMoneyPreset((int)money, (int)_pricePerLiter);
+                }
                 else
                     SetStatusCached("error");
+                return;
+            }
+
+            // Без пресета: ДЕМО — автоматически ставим лимит 10л
+            if (!_isLicensed)
+            {
+                _bridge.QueueVolumePreset(DemoLimitLiters, (int)_pricePerLiter);
                 return;
             }
             SetStatusCached("calling");
@@ -270,7 +303,11 @@ namespace MultiFuelMaster.UI
             _isUpdatingPreset = true;
             string text = PresetLitersInput.Text.Trim().Replace(',', '.');
             if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out double liters) && liters > 0)
+            {
+                // ДЕМО-ограничение: не больше 10л
+                if (!_isLicensed && liters > DemoLimitLiters) liters = DemoLimitLiters;
                 PresetCostInput.Text = ((int)(liters * _pricePerLiter)).ToString();
+            }
             else
                 PresetCostInput.Text = "";
             _isUpdatingPreset = false;
@@ -282,7 +319,12 @@ namespace MultiFuelMaster.UI
             _isUpdatingPreset = true;
             string text = PresetCostInput.Text.Trim().Replace(',', '.');
             if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out double cost) && cost > 0)
+            {
+                // ДЕМО-ограничение: не больше суммы за 10л
+                double maxCost = !_isLicensed ? DemoLimitLiters * _pricePerLiter : double.MaxValue;
+                if (cost > maxCost) cost = maxCost;
                 PresetLitersInput.Text = (cost / _pricePerLiter).ToString("F2");
+            }
             else
                 PresetLitersInput.Text = "";
             _isUpdatingPreset = false;
@@ -323,6 +365,16 @@ namespace MultiFuelMaster.UI
                 double liters = _bridge.CurrentLiters;
                 double money  = _bridge.CurrentMoney;
                 double total  = _bridge.TotalCounter;
+
+                // ДЕМО-ограничение: принудительный стоп при >= 10 литров
+                if (!_isLicensed && !_demoStopSent && liters >= DemoLimitLiters &&
+                    (state == ManagedDispenserState.Fuelling ||
+                     state == ManagedDispenserState.Authorized ||
+                     state == ManagedDispenserState.Started))
+                {
+                    _demoStopSent = true;
+                    _bridge.QueueStop();
+                }
 
                 if (!_transactionShown)
                 {

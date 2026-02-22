@@ -113,24 +113,36 @@ namespace MultiFuelMaster.UI
 
         public int GetValidKeyCount()
         {
+            return GetLicensedSlots().Count;
+        }
+
+        /// <summary>
+        /// Возвращает набор слотов (номеров постов), для которых есть валидный ключ.
+        /// </summary>
+        public HashSet<int> GetLicensedSlots()
+        {
+            var slots = new HashSet<int>();
             string licensePath = GetLicensePath();
             if (!File.Exists(licensePath))
-                return 0;
+                return slots;
 
             try
             {
                 string hwid = GetHardwareID();
                 string[] lines = File.ReadAllLines(licensePath);
-                int count = 0;
                 foreach (string line in lines)
                 {
                     string key = line.Trim();
-                    if (!string.IsNullOrEmpty(key) && ValidateSingleKey(key, hwid))
-                        count++;
+                    if (!string.IsNullOrEmpty(key))
+                    {
+                        int slot = GetKeySlot(key, hwid);
+                        if (slot > 0)
+                            slots.Add(slot);
+                    }
                 }
-                return count;
             }
-            catch { return 0; }
+            catch { }
+            return slots;
         }
 
         /// <summary>

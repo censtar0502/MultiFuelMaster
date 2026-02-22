@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 
 namespace MultiFuelMaster.UI
@@ -10,39 +9,41 @@ namespace MultiFuelMaster.UI
     {
         private readonly List<PostControl> _posts = new();
         private readonly DispatcherTimer   _clockTimer;
-        private readonly int               _maxPanels;
+        private readonly int               _panelCount;
+        private readonly HashSet<int>      _licensedSlots;
 
-        public MainWindow(int maxPanels)
+        public MainWindow(int panelCount, HashSet<int> licensedSlots, bool isTrial)
         {
             InitializeComponent();
-            _maxPanels = maxPanels;
+            _panelCount    = panelCount;
+            _licensedSlots = licensedSlots;
 
-            PostCountLabel.Text = $"[{maxPanels} {PanelWord(maxPanels)}]";
+            PostCountLabel.Text = $"[{panelCount} {PanelWord(panelCount)}]";
 
-            // Рассчитываем сетку: кол-во колонок
-            int cols = CalculateColumns(maxPanels);
+            int cols = CalculateColumns(panelCount);
             PostsGrid.Columns = cols;
 
-            // Создаём панели постов
-            for (int i = 1; i <= maxPanels; i++)
+            int licensedCount = 0;
+            for (int i = 1; i <= panelCount; i++)
             {
-                var post = new PostControl(i);
+                bool isLicensed = licensedSlots.Contains(i) || isTrial;
+                var post = new PostControl(i, isLicensed);
                 _posts.Add(post);
                 PostsGrid.Children.Add(post);
+                if (isLicensed) licensedCount++;
             }
 
-            // Часы в статусной строке
+            // Часы
             _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _clockTimer.Tick += (s, e) => ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
             _clockTimer.Start();
 
             Closing += MainWindow_Closing;
 
-            // Размер окна под количество постов
-            AdjustWindowSize(maxPanels, cols);
+            AdjustWindowSize(panelCount, cols);
 
-            Title = $"MultiFuelMaster — {maxPanels} {PanelWord(maxPanels)}";
-            ActiveCountLabel.Text = $"0 / {maxPanels} активно";
+            Title = $"MultiFuelMaster — {panelCount} {PanelWord(panelCount)}";
+            ActiveCountLabel.Text = $"{licensedCount} / {panelCount} лицензировано";
         }
 
         private static int CalculateColumns(int panelCount) => panelCount switch
@@ -59,15 +60,12 @@ namespace MultiFuelMaster.UI
         private void AdjustWindowSize(int count, int cols)
         {
             int rows = (int)Math.Ceiling((double)count / cols);
-
-            // Компактные панели: ~300px ширина, ~340px высота
             int width  = cols * 300 + 24;
             int height = rows * 340 + 80;
 
             Width  = Math.Max(width, 580);
             Height = Math.Min(Math.Max(height, 480), 900);
 
-            // При 1 посте — окно уже, но не слишком
             if (count == 1) { Width = 400; Height = 500; }
         }
 
