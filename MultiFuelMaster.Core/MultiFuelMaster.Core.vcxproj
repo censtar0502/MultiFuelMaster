@@ -87,9 +87,10 @@
   </ItemDefinitionGroup>
 
   <ItemGroup>
+    <ClInclude Include="ConfigurationConstants.h" />
     <ClInclude Include="DispenserController.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="FuelMasterCore.h" />
+    <ClInclude Include="MultiFuelMasterCore.h" />
     <ClInclude Include="GasKitProtocol.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="pch.h" />

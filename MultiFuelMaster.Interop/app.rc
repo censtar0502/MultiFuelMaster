@@ -1,0 +1,12 @@
+// Microsoft Visual C++ generated resource script.
+#include "Resource.h"
+#include <windows.h>
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
+
+/////////////////////////////////////////////////////////////////////////////
+// Icon
+IDI_ICON1               ICON                    "app.ico"

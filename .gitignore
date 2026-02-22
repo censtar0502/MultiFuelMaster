@@ -11,6 +11,14 @@ Logs/
 bin/
 obj/
 out/
+x64/
+x86/
+Debug/
+Release/
+
+# Keys & tools (no secrets in repo)
+keys/
+tools/
 
 # Visual Studio / Rider
 .vs/
